@@ -97,9 +97,9 @@ const DashboardPage = () => {
       setTodaysMetrics(TODAYS_METRICS_INITIAL_STATE);
       setApppointmentList([]);
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  
+
   return (
     <>
       {fetching ? (
@@ -196,47 +196,58 @@ const DashboardPage = () => {
                       <TableHead>Status</TableHead>
                     </TableRow>
                   </TableHeader>
-                  <TableBody>
-                    {appointmentList?.map((appointment: Appointment) => (
-                      <TableRow
-                        key={appointment.id}
-                        onClick={() =>
-                          navigate(
-                            `${APP_ROUTES.APPOINTMENT_DETAILS}/${appointment.id}`
-                          )
-                        }
-                      >
-                        <TableCell className="font-medium">
-                          <div className="font-medium">
-                            {appointment.patient.name}
-                          </div>
-                          <div className="hidden text-sm text-muted-foreground md:inline">
-                            {appointment.patient.phoneNumber}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="font-medium">
-                            {appointment.doctor.name}
-                          </div>
-                        </TableCell>
-                        <TableCell className="hidden md:table-cell">
-                          {`${format(
-                            appointment.appointmentDate,
-                            "dd-MM-yyyy"
-                          )}, ${appointment.doctorSlots.slot.startTime}`}
-                        </TableCell>
-                        <TableCell className="capitalize">
-                          <p
-                            className={`badge ${
-                              statusClasses[appointment.appointmentStatus]
-                            } px-2 py-1 rounded-lg text-xs w-[90px] text-center capitalize self-start`}
-                          >
-                            {appointment.appointmentStatus.toLowerCase()}
-                          </p>
+                  {appointmentList.length === 0 ? (
+                    <TableBody>
+                      <TableRow>
+                        <TableCell colSpan={4} className="text-center">
+                          No Appoinments
                         </TableCell>
                       </TableRow>
-                    ))}
-                  </TableBody>
+                    </TableBody>
+                  ) : (
+                    <TableBody>
+                      {appointmentList?.map((appointment: Appointment) => (
+                        <TableRow
+                          key={appointment.id}
+                          onClick={() =>
+                            navigate(
+                              `${APP_ROUTES.APPOINTMENT_DETAILS}/${appointment.id}`
+                            )
+                          }
+                          className="cursor-pointer"
+                        >
+                          <TableCell className="font-medium">
+                            <div className="font-medium">
+                              {appointment.patient.name}
+                            </div>
+                            <div className="hidden text-sm text-muted-foreground md:inline">
+                              {appointment.patient.phoneNumber}
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div className="font-medium">
+                              {appointment.doctor.name}
+                            </div>
+                          </TableCell>
+                          <TableCell className="hidden md:table-cell">
+                            {`${format(
+                              appointment.appointmentDate,
+                              "dd-MM-yyyy"
+                            )}, ${appointment.doctorSlots.slot.startTime}`}
+                          </TableCell>
+                          <TableCell className="capitalize">
+                            <p
+                              className={`badge ${
+                                statusClasses[appointment.appointmentStatus]
+                              } px-2 py-1 rounded-lg text-xs w-[90px] text-center capitalize self-start`}
+                            >
+                              {appointment.appointmentStatus.toLowerCase()}
+                            </p>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  )}
                 </Table>
               </CardContent>
             </Card>

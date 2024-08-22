@@ -150,6 +150,7 @@ const Doctors = () => {
                     onClick={() =>
                       navigate(APP_ROUTES.UPDATE_DOCTOR + `/${item.id}`)
                     }
+                    className="cursor-pointer"
                   >
                     <TableCell>{item.name}</TableCell>
                     <TableCell>{item.speciality}</TableCell>

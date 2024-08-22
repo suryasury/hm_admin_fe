@@ -130,6 +130,7 @@ const userSchema = z.object({
   profilePictureUrl: z.string().optional(),
   role: z.string().optional(),
   speciality: z.string().min(3, "Speciality is required"),
+  qualification: z.string(),
 });
 const CreateDoctor: React.FC = () => {
   const [uploadingImage, setUploadingImage] = useState(false);
@@ -346,6 +347,19 @@ const CreateDoctor: React.FC = () => {
                   render={({ field }) => (
                     <FormItem className="w-full md:w-1/2 lg:w-1/4 mb-4">
                       <FormLabel>Speciality</FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="qualification"
+                  render={({ field }) => (
+                    <FormItem className="w-full md:w-1/2 lg:w-1/4 mb-4">
+                      <FormLabel>Qualification</FormLabel>
                       <FormControl>
                         <Input {...field} />
                       </FormControl>

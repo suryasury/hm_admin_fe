@@ -147,6 +147,7 @@ const Admins = () => {
                     onClick={() =>
                       navigate(APP_ROUTES.UPDATE_ADMIN + `/${item.id}`)
                     }
+                    className="cursor-pointer"
                   >
                     <TableCell>{item.name}</TableCell>
                     <TableCell>{item.phoneNumber}</TableCell>

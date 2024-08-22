@@ -61,6 +61,16 @@ export interface IMedcation {
   durationInDays: number | "";
   foodRelation: "BEFORE_MEAL" | "AFTER_MEAL" | "";
   timeOfDay: Array<"MORNING" | "AFTERNOON" | "EVENING" | "NIGHT">;
+  prescriptionRemarks?: string;
+}
+
+export interface IFilterDoctor {
+  id: string;
+  name: string;
+  email: string;
+  phoneNumber: string;
+  isd_code: string;
+  speciality: string;
 }
 
 export interface Ailment {
@@ -130,6 +140,7 @@ export interface Appointment {
     phoneNumber: string;
     isd_code: string;
     bloodGroup: string;
+    dateOfBirth: string;
   };
   ailment: Ailment;
   doctorSlots: DoctorSlots;
@@ -138,6 +149,13 @@ export interface Appointment {
   >;
   remarks: "";
   doctorRemarks: "";
+  isFeedbackProvided: boolean;
+  appointmentFeedbacks: Record<string, string>;
+  feverLevel: string;
+  bloodPreassure: string;
+  pulse: string;
+  patientWeight: string;
+  otherVitalRemarks: string;
 }
 
 // app types
@@ -446,6 +464,7 @@ export interface ICreateDoctor {
     state?: string;
     country?: string;
     pincode?: string;
+    qualification: string;
   };
   slotDetails?: ISlotDetails[];
 }
@@ -468,6 +487,8 @@ export interface IUpdateDoctor {
     country?: string;
     pincode?: string;
     signedUrl?: string;
+    qualification?: string;
+
   };
   slotDetails?: ISlotDetails[];
   removedSlotIds?: string[];

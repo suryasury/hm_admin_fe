@@ -134,6 +134,8 @@ const AppointmentFeedbackPage = () => {
                     onClick={() =>
                       navigate(APP_ROUTES.APPOINTMENT_DETAILS + `/${record.appointment.id}`)
                     }
+                    className="cursor-pointer"
+
                   >
                     <TableCell>{record.appointment.patient.name}</TableCell>
                     <TableCell>{record.appointment.doctor.name}</TableCell>

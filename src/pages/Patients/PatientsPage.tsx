@@ -125,6 +125,8 @@ const PatientsPage = () => {
                   onClick={() =>
                     navigate(`${APP_ROUTES.PATIENT_DETAILS}/${record.patientId}`)
                   }
+                  className="cursor-pointer"
+
                 >
                   <TableCell>{record.patient.name}</TableCell>
                   <TableCell>{record.patient.phoneNumber}</TableCell>

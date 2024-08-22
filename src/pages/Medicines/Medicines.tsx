@@ -211,7 +211,11 @@ const Medicines = () => {
               <TableBody>
                 {medicinesList.map(
                   (item: ICreateMedicationForm, index: number) => (
-                    <TableRow key={index}>
+                    <TableRow
+                      key={index}
+                      className="cursor-pointer"
+                      onClick={() => handleViewOrEdit(item, "view")}
+                    >
                       <TableCell>{item.medicationName}</TableCell>
                       <TableCell className="hidden md:table-cell">
                         {item.code}

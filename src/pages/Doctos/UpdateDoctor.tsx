@@ -173,6 +173,7 @@ const userSchema = z.object({
   profilePictureUrl: z.string().optional(),
   role: z.string().optional(),
   signedUrl: z.string().optional(),
+  qualification: z.string().optional(),
 });
 const UpdateDoctor: React.FC = () => {
   const { id } = useParams();
@@ -311,8 +312,8 @@ const UpdateDoctor: React.FC = () => {
       }
       const res = await updateDoctor(payload, id!);
       if (res.status === 200) {
-        toast.success("Doctor created successfully");
-        navigate(APP_ROUTES.DOCTORS);
+        toast.success("Doctor updated successfully");
+        fetchDoctorDetails()
       }
     } catch (error) {
       handleError(error, "Failed to update profile");
@@ -442,6 +443,19 @@ const UpdateDoctor: React.FC = () => {
                   render={({ field }) => (
                     <FormItem className="w-full md:w-1/2 lg:w-1/4 mb-4">
                       <FormLabel>Speciality</FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="qualification"
+                  render={({ field }) => (
+                    <FormItem className="w-full md:w-1/2 lg:w-1/4 mb-4">
+                      <FormLabel>Qualification</FormLabel>
                       <FormControl>
                         <Input {...field} />
                       </FormControl>

@@ -1,17 +1,14 @@
-import {
-  CheckCircle2,
-  ChevronLeft,
-  ChevronRight,
-  Eye,
-  Hourglass,
-  MoreVertical,
-  Search,
-  X,
-} from "lucide-react";
-
 import { APP_ROUTES } from "@/appRoutes";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
 import DatePicker from "@/components/ui/date-picker";
 import {
   DropdownMenu,
@@ -26,6 +23,12 @@ import {
   PaginationContent,
   PaginationItem,
 } from "@/components/ui/pagination";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import Spinner from "@/components/ui/spinner";
 import {
   Table,
@@ -36,11 +39,29 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import useErrorHandler from "@/hooks/useError";
-import { getAppointmentList } from "@/https/admin-service";
-import { Appointment } from "@/types";
+import {
+  getAppointmentList,
+  getDoctorMinifiedList,
+} from "@/https/admin-service";
+import { cn } from "@/lib/utils";
+import { Appointment, IFilterDoctor } from "@/types";
 import { statusClasses } from "@/utils";
+import { CaretSortIcon } from "@radix-ui/react-icons";
+import { CommandLoading } from "cmdk";
 import { format } from "date-fns";
 import debounce from "lodash.debounce";
+import {
+  CheckCircle,
+  CheckCircle2,
+  CheckIcon,
+  ChevronLeft,
+  ChevronRight,
+  Eye,
+  Hourglass,
+  MoreVertical,
+  Search,
+  X,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import NoDataFound from "../NoDataFound";
@@ -50,12 +71,21 @@ const showCancelBtn = (status: string) => {
   if (status === "CANCELLED") return false;
   return true;
 };
-type AppointmentStatus = "SCHEDULED" | "COMPLETED" | "CANCELLED" | "";
+type AppointmentStatus =
+  | "SCHEDULED"
+  | "COMPLETED"
+  | "CANCELLED"
+  | "APPROVED"
+  | "";
 
 const statusToText = {
   SCHEDULED: {
     icon: <Hourglass className="mr-2 h-4 w-4" />,
     text: "Scheduled",
+  },
+  APPROVED: {
+    icon: <CheckCircle className="mr-2 h-4 w-4" />,
+    text: "Approved",
   },
   COMPLETED: {
     icon: <CheckCircle2 className="mr-2 h-4 w-4" />,
@@ -80,6 +110,10 @@ const AppointmentsPage = () => {
   const navigate = useNavigate();
 
   const [isFetching, setIsFetching] = useState<boolean>(false);
+  const [doctorsList, setDoctorsList] = useState<IFilterDoctor[]>([]);
+  const [selectedDoctor, setSelectedDoctor] = useState<IFilterDoctor>();
+  const [showDoctorList, setShowDoctorList] = useState(false);
+  const [fetchingDoctors, setFetchingDoctors] = useState(false);
   const startIndex = (currentPage - 1) * rowsPerPage + 1;
   const endIndex = appointmentsList?.length + startIndex - 1;
 
@@ -88,12 +122,19 @@ const AppointmentsPage = () => {
   const fetchAppointmentList = async () => {
     try {
       setIsFetching(true);
-      const response = await getAppointmentList({
+      const queryParams: Record<string, string> = {
         page: currentPage.toString(),
         limit: rowsPerPage.toString(),
         appointmentStatus: appointmentStatus,
         search,
-      });
+      };
+      if (date) {
+        queryParams["date"] = format(date, "yyyy-MM-dd");
+      }
+      if (selectedDoctor) {
+        queryParams["doctorId"] = selectedDoctor.id;
+      }
+      const response = await getAppointmentList(queryParams);
       const data = response.data.data.appointmentList;
       const totalRecords = response.data.data.meta.totalMatchingRecords;
       setTotalRecords(totalRecords);
@@ -106,6 +147,18 @@ const AppointmentsPage = () => {
     }
   };
 
+  const fetchDoctorList = async () => {
+    try {
+      setFetchingDoctors(true);
+      const res = await getDoctorMinifiedList({});
+      setDoctorsList(res.data.data.doctorMinifiedList);
+    } catch (error) {
+      handleError(error, "Failed to fetch doctor list");
+    } finally {
+      setFetchingDoctors(false);
+    }
+  };
+
   const handleSearch = debounce((e: React.ChangeEvent<HTMLInputElement>) => {
     setSearch(e.target.value);
     setCurrentPage(1);
@@ -114,9 +167,21 @@ const AppointmentsPage = () => {
   useEffect(() => {
     fetchAppointmentList();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentPage, rowsPerPage, appointmentStatus, search]);
+  }, [
+    currentPage,
+    rowsPerPage,
+    appointmentStatus,
+    search,
+    date,
+    selectedDoctor,
+  ]);
 
-  if (!isFetching && search === "" && appointmentsList.length === 0) {
+  if (
+    !isFetching &&
+    search === "" &&
+    appointmentsList.length === 0 &&
+    selectedDoctor === undefined
+  ) {
     return <NoDataFound message="No appointments found" />;
   }
 
@@ -163,6 +228,12 @@ const AppointmentsPage = () => {
                     <Hourglass className="mr-2 h-4 w-4" />
                     Scheduled
                   </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => setAppointmentStatus("APPROVED")}
+                  >
+                    <CheckCircle className="mr-2 h-4 w-4" />
+                    Approved
+                  </DropdownMenuItem>
 
                   <DropdownMenuItem
                     onClick={() => setAppointmentStatus("COMPLETED")}
@@ -182,6 +253,78 @@ const AppointmentsPage = () => {
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
+              <Popover open={showDoctorList} onOpenChange={setShowDoctorList}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    role="combobox"
+                    className="justify-between text-muted-foreground font-normal"
+                    onClick={() => {
+                      setShowDoctorList(true);
+                      fetchDoctorList();
+                    }}
+                  >
+                    {selectedDoctor?.name
+                      ? selectedDoctor?.name
+                      : " Filter by doctor"}
+                    <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Command>
+                    <CommandList>
+                      <CommandInput placeholder="Search doctor..." />
+                      <ScrollArea className="h-[200px]">
+                        <CommandEmpty>No Medicine found.</CommandEmpty>
+                        {fetchingDoctors && (
+                          <CommandLoading>
+                            <div className="flex gap-2 items-center justify-center mt-4">
+                              <Spinner />
+                              <span className="text-muted-foreground">
+                                Please wait...
+                              </span>
+                            </div>
+                          </CommandLoading>
+                        )}
+                        <CommandGroup>
+                          {doctorsList.map((doctor: IFilterDoctor) => (
+                            <CommandItem
+                              className="gap-2"
+                              key={doctor.id}
+                              value={doctor.name?.toString()}
+                              onSelect={() => {
+                                setSelectedDoctor(doctor);
+
+                                setShowDoctorList(false);
+                              }}
+                            >
+                              <p className="flex flex-col">
+                                {doctor.name}
+                                <span className="text-sm text-muted-foreground">
+                                  {doctor.speciality}
+                                </span>
+                              </p>
+                              {selectedDoctor?.id === doctor.id && (
+                                <CheckIcon className={cn("ml-auto h-4 w-4")} />
+                              )}
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </ScrollArea>
+                    </CommandList>
+                  </Command>
+                  <DropdownMenuSeparator />
+                  <Button
+                    variant="ghost"
+                    onClick={() => {
+                      setSelectedDoctor(undefined), setShowDoctorList(false);
+                    }}
+                    className="font-normal w-full  justify-start"
+                  >
+                    Clear Filter
+                  </Button>
+                </PopoverContent>
+              </Popover>
             </div>
             {isFetching && (
               <div className="flex gap-1 ml-10 items-start text-muted-foreground ">
@@ -218,9 +361,10 @@ const AppointmentsPage = () => {
                     key={appointment.id}
                     onClick={() =>
                       navigate(
-                        `${APP_ROUTES.APPOINTMENT_DETAILS}/${appointment.id}`,
+                        `${APP_ROUTES.APPOINTMENT_DETAILS}/${appointment.id}`
                       )
                     }
+                    className="cursor-pointer"
                   >
                     <TableCell className="font-medium">
                       <div className="font-medium">
@@ -264,7 +408,7 @@ const AppointmentsPage = () => {
                           <DropdownMenuItem
                             onClick={() =>
                               navigate(
-                                `${APP_ROUTES.APPOINTMENT_DETAILS}/${appointment.id}`,
+                                `${APP_ROUTES.APPOINTMENT_DETAILS}/${appointment.id}`
                               )
                             }
                           >
@@ -353,7 +497,7 @@ const AppointmentsPage = () => {
                   size="icon"
                   onClick={() =>
                     setCurrentPage((prev) =>
-                      prev === noOfPages ? noOfPages : prev + 1,
+                      prev === noOfPages ? noOfPages : prev + 1
                     )
                   }
                 >
