@@ -1,9 +1,12 @@
-import { APP_ROUTES } from "@/appRoutes";
 import { Button } from "@/components/ui/button";
+import { roleToHomeRoute } from "@/config/RolesToHome";
+import { UserState } from "@/types";
+import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
 const NotFoundPage = () => {
   const navigate = useNavigate();
+  const user = useSelector((state: { user: UserState }) => state.user.user);
   return (
     <div className="bg-gray-100 flex items-center justify-center h-screen  w-full">
       <div className="text-center">
@@ -13,8 +16,10 @@ const NotFoundPage = () => {
           It seems the page you're looking for doesn't exist. Please check the
           URL or return to the homepage.
         </p>
-        <Button onClick={() => navigate(APP_ROUTES.DASHBOARD)}>
-          Go to Dashboard
+        <Button
+          onClick={() => navigate(roleToHomeRoute[user?.role ?? "DOCTOR"])}
+        >
+          Go to Homepage
         </Button>
       </div>
     </div>

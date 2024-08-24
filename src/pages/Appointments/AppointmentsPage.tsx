@@ -1,4 +1,3 @@
-import { APP_ROUTES } from "@/appRoutes";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import {
@@ -44,6 +43,7 @@ import {
   getDoctorMinifiedList,
 } from "@/https/admin-service";
 import { cn } from "@/lib/utils";
+import { APP_ROUTES } from "@/router/appRoutes";
 import { Appointment, IFilterDoctor } from "@/types";
 import { statusClasses } from "@/utils";
 import { CaretSortIcon } from "@radix-ui/react-icons";
@@ -97,7 +97,7 @@ const statusToText = {
   },
 };
 const AppointmentsPage = () => {
-  const [date, setDate] = useState<Date | undefined>();
+  const [date, setDate] = useState<Date | undefined>(new Date());
   const [noOfPages, setNoOfPages] = useState(15);
   const [totalRecords, setTotalRecords] = useState(0);
   const [appointmentsList, setAppointmentList] = useState<Appointment[]>([]);
@@ -180,7 +180,8 @@ const AppointmentsPage = () => {
     !isFetching &&
     search === "" &&
     appointmentsList.length === 0 &&
-    selectedDoctor === undefined
+    selectedDoctor === undefined &&
+    date === undefined
   ) {
     return <NoDataFound message="No appointments found" />;
   }
@@ -338,6 +339,7 @@ const AppointmentsPage = () => {
               <TableRow>
                 <TableHead>Patient</TableHead>
                 <TableHead>Doctor</TableHead>
+                <TableHead>Token No</TableHead>
                 <TableHead className="hidden md:table-cell">
                   Date & Time
                 </TableHead>
@@ -377,6 +379,11 @@ const AppointmentsPage = () => {
                     <TableCell>
                       <div className="font-medium">
                         {appointment.doctor.name}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="font-medium">
+                        {appointment.tokenNumber}
                       </div>
                     </TableCell>
                     <TableCell className="hidden md:table-cell">

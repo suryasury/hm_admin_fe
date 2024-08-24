@@ -1,4 +1,3 @@
-import { APP_ROUTES } from "@/appRoutes";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -19,6 +18,8 @@ import {
 import { Input } from "@/components/ui/input";
 import Spinner from "@/components/ui/spinner";
 import useErrorHandler from "@/hooks/useError";
+import { restPassword } from "@/https/auth-service";
+import { APP_ROUTES } from "@/router/appRoutes";
 import { UserState } from "@/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AxiosError } from "axios";
@@ -26,7 +27,7 @@ import { CheckCircle } from "lucide-react"; // Import CheckCircle icon
 import { useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { useSelector } from "react-redux";
-import { Navigate, useParams } from "react-router-dom";
+import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
 import { z } from "zod";
 
@@ -58,12 +59,11 @@ const ResetPassword: React.FC = () => {
   const { token } = useParams<{ token: string }>();
   const user = useSelector((state: { user: UserState }) => state.user.user);
   const handleError = useErrorHandler();
+  const navigate = useNavigate();
 
   if (user) {
     return <Navigate to={APP_ROUTES.DASHBOARD} />;
   }
-
-  console.log(token);
 
   const onSubmit: SubmitHandler<IResetPasswordForm> = async (
     data: IResetPasswordForm
@@ -71,14 +71,11 @@ const ResetPassword: React.FC = () => {
     try {
       setSubmitting(true);
       console.log(data);
-      // Simulate API call
-      // const response = await resetPassword(data, token);
-      // if (response.status === 200) {
-      //   toast.success("Password has been reset successfully.");
-      //   navigate(APP_ROUTES.SIGN_IN);
-      // }
-      setSubmitted(true); // Set submission status to true
-      toast.success("Password has been reset successfully.");
+      const response = await restPassword(data.newPassword, token!);
+      if (response.status === 200) {
+        toast.success("Password has been reset successfully.");
+        setSubmitted(true);
+      }
     } catch (error) {
       if ((error as AxiosError).response?.status === 403) {
         return toast.error("Invalid request");
@@ -103,6 +100,9 @@ const ResetPassword: React.FC = () => {
             <p className="text-sm text-gray-500">
               You can now log in with your new password.
             </p>
+            <Button className="mt-4" onClick={() => navigate(APP_ROUTES.LOGIN)}>
+              Go to Login
+            </Button>
           </CardContent>
         </Card>
       ) : (

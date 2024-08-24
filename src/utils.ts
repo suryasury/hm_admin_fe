@@ -88,3 +88,4 @@ export const isEndTimeSmallerThanStart = (
   // Return true if end time is smaller than start time
   return compareAsc(endDate, startDate) < 0;
 };
+

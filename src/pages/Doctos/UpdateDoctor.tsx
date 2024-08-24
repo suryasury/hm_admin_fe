@@ -27,11 +27,11 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 
-import { APP_ROUTES } from "@/appRoutes";
 import { PhoneInput } from "@/components/ui/phone-input";
 import Spinner from "@/components/ui/spinner";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { APP_ROUTES } from "@/router/appRoutes";
 import { dirtyValues, replaceNullWithEmptyString } from "@/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { isValidPhoneNumber } from "react-phone-number-input";
@@ -313,7 +313,7 @@ const UpdateDoctor: React.FC = () => {
       const res = await updateDoctor(payload, id!);
       if (res.status === 200) {
         toast.success("Doctor updated successfully");
-        fetchDoctorDetails()
+        fetchDoctorDetails();
       }
     } catch (error) {
       handleError(error, "Failed to update profile");

@@ -21,9 +21,9 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 
-import { APP_ROUTES } from "@/appRoutes";
 import { PhoneInput } from "@/components/ui/phone-input";
 import Spinner from "@/components/ui/spinner";
+import { APP_ROUTES } from "@/router/appRoutes";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { isValidPhoneNumber } from "react-phone-number-input";
 import { useNavigate } from "react-router-dom";

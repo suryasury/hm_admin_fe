@@ -1,4 +1,3 @@
-import { APP_ROUTES } from "@/appRoutes";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,23 +9,16 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { routesAndNavItems } from "@/config/roleBasedConfig";
+import { APP_ROUTES } from "@/router/appRoutes";
 import { clearUser } from "@/state/userReducer";
 import { UserState } from "@/types";
 import {
-  Biohazard,
-  CalendarPlus2,
   ChevronLeft,
   ChevronRight,
-  LayoutDashboard,
   Menu,
-  MessageSquareText,
   Package2,
-  PillBottle,
-  Stethoscope,
   UserIcon,
-  Users,
-  BetweenHorizontalStart,
-  UserRoundCog,
 } from "lucide-react";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -38,8 +30,6 @@ import {
   useNavigate,
 } from "react-router-dom";
 import { toast } from "sonner";
-
-const navItemIconClass = "h-4 w-4";
 
 const linkToTitle = {
   [APP_ROUTES.DASHBOARD]: "Dashboard",
@@ -55,55 +45,17 @@ const linkToTitle = {
   [APP_ROUTES.DOCTORS]: "Doctors",
   [APP_ROUTES.CREATE_DOCTOR]: "Create Doctor",
   [APP_ROUTES.UPDATE_DOCTOR]: "Update Doctor",
+  [APP_ROUTES.PROFILE]: "Profile",
 };
-
-const navItems = [
-  {
-    label: "Dashboard",
-    icon: <LayoutDashboard className={navItemIconClass} />,
-    link: APP_ROUTES.DASHBOARD,
-  },
-  {
-    label: "Patients",
-    icon: <Users className={navItemIconClass} />,
-    link: APP_ROUTES.PATIENTS,
-  },
-  {
-    label: "Doctors",
-    icon: <Stethoscope className={navItemIconClass} />,
-    link: APP_ROUTES.DOCTORS,
-  },
-  {
-    label: "Appointments",
-    icon: <CalendarPlus2 className={navItemIconClass} />,
-    link: APP_ROUTES.APPOINTMENTS,
-  },
-  {
-    label: "Medicines",
-    icon: <PillBottle className={navItemIconClass} />,
-    link: APP_ROUTES.MEDICATION,
-  },
-  {
-    label: "Ailments",
-    icon: <Biohazard className={navItemIconClass} />,
-    link: APP_ROUTES.AILMENTS,
-  },
-  {
-    label: "Slots",
-    icon: <BetweenHorizontalStart className={navItemIconClass} />,
-    link: APP_ROUTES.SLOTS,
-  },
-  {
-    label: "Feedbacks",
-    icon: <MessageSquareText className={navItemIconClass} />,
-    link: APP_ROUTES.APPOINTMENT_FEEDBACKS,
-  },
-  {
-    label: "Admins",
-    icon: <UserRoundCog className={navItemIconClass} />,
-    link: APP_ROUTES.ADMINS,
-  },
-];
+const generateNavItems = (userRole: string) => {
+  return routesAndNavItems
+    .filter((item) => item.roles.includes(userRole) && item.label && item.icon)
+    .map(({ label, icon, path }) => ({
+      label,
+      icon,
+      link: path,
+    }));
+};
 
 const DashboardLayout = () => {
   const [openSidebar, setOpenSidebar] = useState<boolean>(false);
@@ -112,6 +64,8 @@ const DashboardLayout = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const user = useSelector((state: { user: UserState }) => state.user.user);
+
+  const navItems = generateNavItems(user?.role ?? "admin");
 
   if (!user) {
     toast.error("Session expired. Please login again.");
@@ -132,7 +86,7 @@ const DashboardLayout = () => {
           <div className="flex h-14 items-center border-b px-4 lg:h-[60px] lg:px-4">
             <Link to="/" className="flex items-center gap-2 font-semibold">
               <Package2 className="h-6 w-6" />
-              {!collapseSidebar && <span className="">HMS Admin</span>}
+              {!collapseSidebar && <span className="">HMS</span>}
             </Link>
           </div>
           <div className="flex-1 relative">
@@ -200,6 +154,12 @@ const DashboardLayout = () => {
             <h1 className="text-lg font-semibold md:text-2xl" id="header-title">
               {linkToTitle[location.pathname as keyof typeof linkToTitle]}
             </h1>
+          </div>
+          <div className="flex flex-col ">
+            <p className="font-semibold">{user?.name}</p>
+            <p className="text-muted-foreground text-[12px] capitalize">
+              {user.role.toLowerCase()}
+            </p>
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

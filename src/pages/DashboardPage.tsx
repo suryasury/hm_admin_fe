@@ -9,7 +9,6 @@ import {
   Users,
 } from "lucide-react";
 
-import { APP_ROUTES } from "@/appRoutes";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -29,6 +28,7 @@ import {
 } from "@/components/ui/table";
 import useErrorHandler from "@/hooks/useError";
 import { getAppointmentList, getDashboardMetrics } from "@/https/admin-service";
+import { APP_ROUTES } from "@/router/appRoutes";
 import { Appointment } from "@/types";
 import { statusClasses } from "@/utils";
 import { format } from "date-fns";
@@ -37,7 +37,7 @@ import { Link, useNavigate } from "react-router-dom";
 
 interface ITodaysMetrics {
   todaysAppointment: number;
-  todaysPendingAppointment: number;
+  completedAppointments: number;
   todaysCancelledAppointments: number;
 }
 interface IMetrics {
@@ -56,7 +56,7 @@ const METRICS_INITIAL_STATE: IMetrics = {
 
 const TODAYS_METRICS_INITIAL_STATE: ITodaysMetrics = {
   todaysAppointment: 0,
-  todaysPendingAppointment: 0,
+  completedAppointments: 0,
   todaysCancelledAppointments: 0,
 };
 
@@ -77,7 +77,11 @@ const DashboardPage = () => {
         await Promise.all([
           getDashboardMetrics(),
           getDashboardMetrics("today"),
-          getAppointmentList({ page: "1", limit: "5" }),
+          getAppointmentList({
+            page: "1",
+            limit: "5",
+            date: format(new Date(), "yyyy-MM-dd"),
+          }),
         ]);
       setMetrics(metricsRes.data.data);
       setTodaysMetrics(todaysMetricsRes.data.data);
@@ -152,7 +156,7 @@ const DashboardPage = () => {
             <Card x-chunk="dashboard-01-chunk-3">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">
-                  Active Now
+                  Active Appointments
                 </CardTitle>
                 <Activity className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
@@ -167,9 +171,9 @@ const DashboardPage = () => {
             <Card className="xl:col-span-2" x-chunk="dashboard-01-chunk-4">
               <CardHeader className="flex flex-row items-center">
                 <div className="grid gap-2">
-                  <CardTitle>Appointments</CardTitle>
+                  <CardTitle>Today's Appointments</CardTitle>
                   <CardDescription>
-                    Recent appointments from your hospital.
+                    Today's recent appointments from your hospital.
                   </CardDescription>
                 </div>
                 <Button
@@ -190,6 +194,7 @@ const DashboardPage = () => {
                     <TableRow>
                       <TableHead>Patient</TableHead>
                       <TableHead>Doctor</TableHead>
+                      <TableHead>Token No</TableHead>
                       <TableHead className="hidden md:table-cell">
                         Date & Time
                       </TableHead>
@@ -229,6 +234,11 @@ const DashboardPage = () => {
                               {appointment.doctor.name}
                             </div>
                           </TableCell>
+                          <TableCell>
+                            <div className="font-medium">
+                              {appointment.tokenNumber}
+                            </div>
+                          </TableCell>
                           <TableCell className="hidden md:table-cell">
                             {`${format(
                               appointment.appointmentDate,
@@ -261,7 +271,7 @@ const DashboardPage = () => {
                 <Card x-chunk="dashboard-01-chunk-0">
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">
-                      Appointments Scheduled Today
+                      Appointments Scheduled 
                     </CardTitle>
                     <CalendarCheck className="h-4 w-4 text-muted-foreground" />
                   </CardHeader>
@@ -274,13 +284,13 @@ const DashboardPage = () => {
                 <Card x-chunk="dashboard-01-chunk-0">
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">
-                      Appointments Pending
+                      Completed Appointments
                     </CardTitle>
                     <Hourglass className="h-4 w-4 text-muted-foreground" />
                   </CardHeader>
                   <CardContent>
                     <div className="text-2xl font-bold">
-                      {todaysMetrics?.todaysPendingAppointment}
+                      {todaysMetrics?.completedAppointments}
                     </div>
                   </CardContent>
                 </Card>

@@ -1,5 +1,4 @@
 // ResetPassword.tsx
-import { APP_ROUTES } from "@/appRoutes";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -20,6 +19,8 @@ import {
 import { Input } from "@/components/ui/input";
 import Spinner from "@/components/ui/spinner";
 import useErrorHandler from "@/hooks/useError";
+import { sendResetPasswordEmail } from "@/https/auth-service";
+import { APP_ROUTES } from "@/router/appRoutes";
 import { UserState } from "@/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AxiosError } from "axios";
@@ -58,14 +59,12 @@ const ForgetPassword: React.FC = () => {
   ) => {
     try {
       setSubmitting(true);
-      console.log(data);
-      // Simulate API call
-      // const response = await resetPassword(data);
-      // if (response.status === 200) {
-      //   toast.success("Password reset link sent successfully.");
-      //   navigate(APP_ROUTES.SIGN_IN);
-      // }
-      setSubmitted(true); // Set submission status to true
+
+      const response = await sendResetPasswordEmail(data.email);
+      if (response.status === 200) {
+        toast.success("Password reset link sent successfully.");
+      }
+      setSubmitted(true);
       toast.success("Password reset link sent successfully.");
     } catch (error) {
       if ((error as AxiosError).response?.status === 403) {

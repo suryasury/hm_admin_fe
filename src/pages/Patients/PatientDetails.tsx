@@ -1,4 +1,3 @@
-import { APP_ROUTES } from "@/appRoutes";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -30,6 +29,7 @@ import {
 } from "@/components/ui/table";
 import useErrorHandler from "@/hooks/useError";
 import { getAppointmentList, getPatientDetails } from "@/https/admin-service";
+import { APP_ROUTES } from "@/router/appRoutes";
 import { Appointment } from "@/types";
 import { statusClasses } from "@/utils";
 import { format } from "date-fns";
@@ -225,6 +225,7 @@ const PatientDetails = () => {
                   <TableRow>
                     <TableHead>Patient</TableHead>
                     <TableHead>Doctor</TableHead>
+                    <TableHead>Token No</TableHead>
                     <TableHead className="hidden md:table-cell">
                       Date & Time
                     </TableHead>
@@ -232,7 +233,10 @@ const PatientDetails = () => {
                   </TableRow>
                 </TableHeader>
                 {appointmentList.length === 0 ? (
-                  <TableCell colSpan={4} className="font-medium text-muted-foreground mt-4 text-center">
+                  <TableCell
+                    colSpan={4}
+                    className="font-medium text-muted-foreground mt-4 text-center"
+                  >
                     No Appointments
                   </TableCell>
                 ) : (
@@ -257,6 +261,11 @@ const PatientDetails = () => {
                         <TableCell>
                           <div className="font-medium">
                             {appointment.doctor.name}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="font-medium">
+                            {appointment.tokenNumber}
                           </div>
                         </TableCell>
                         <TableCell className="hidden md:table-cell">

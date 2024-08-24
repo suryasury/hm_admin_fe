@@ -1,4 +1,3 @@
-import { APP_ROUTES } from "@/appRoutes";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -19,6 +18,8 @@ import {
 import { Input } from "@/components/ui/input";
 import Spinner from "@/components/ui/spinner";
 import useErrorHandler from "@/hooks/useError";
+import { changePassword } from "@/https/auth-service";
+import { APP_ROUTES } from "@/router/appRoutes";
 import { UserState } from "@/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AxiosError } from "axios";
@@ -26,12 +27,15 @@ import { CheckCircle } from "lucide-react"; // Import CheckCircle icon
 import { useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { useSelector } from "react-redux";
-import { Navigate } from "react-router-dom";
+import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
 import { z } from "zod";
 
 const newPasswordSchema = z
   .object({
+    currentPassword: z
+      .string()
+      .min(6, "Password must be at least 6 characters"),
     newPassword: z.string().min(6, "Password must be at least 6 characters"),
     confirmPassword: z
       .string()
@@ -49,6 +53,7 @@ interface IResetPasswordForm {
 }
 
 const FirstLoginPassword: React.FC = () => {
+  const { token } = useParams();
   const form = useForm<IResetPasswordForm>({
     resolver: zodResolver(newPasswordSchema),
   });
@@ -58,6 +63,7 @@ const FirstLoginPassword: React.FC = () => {
 
   const user = useSelector((state: { user: UserState }) => state.user.user);
   const handleError = useErrorHandler();
+  const navigate = useNavigate();
 
   if (user) {
     return <Navigate to={APP_ROUTES.DASHBOARD} />;
@@ -68,15 +74,16 @@ const FirstLoginPassword: React.FC = () => {
   ) => {
     try {
       setSubmitting(true);
-      console.log(data);
-      // Simulate API call
-      // const response = await resetPassword(data, token);
-      // if (response.status === 200) {
-      //   toast.success("Password has been reset successfully.");
-      //   navigate(APP_ROUTES.SIGN_IN);
-      // }
-      setSubmitted(true); // Set submission status to true
-      toast.success("Password has been reset successfully.");
+
+      const payload: Record<string, string> = {
+        oldPassword: data.currentPassword,
+        newPassword: data.newPassword,
+      };
+      const response = await changePassword(payload, token!);
+      if (response.status === 200) {
+        toast.success("Password has been reset successfully.");
+        setSubmitted(true); // Set submission status to true
+      }
     } catch (error) {
       if ((error as AxiosError).response?.status === 403) {
         return toast.error("Invalid request");
@@ -101,6 +108,9 @@ const FirstLoginPassword: React.FC = () => {
             <p className="text-sm text-gray-500">
               You can now log in with your new password.
             </p>
+            <Button className="mt-4" onClick={() => navigate(APP_ROUTES.LOGIN)}>
+              Go to Login
+            </Button>
           </CardContent>
         </Card>
       ) : (
@@ -123,7 +133,7 @@ const FirstLoginPassword: React.FC = () => {
                   name="currentPassword"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>New Password</FormLabel>
+                      <FormLabel>Password from the email</FormLabel>
                       <FormControl>
                         <Input
                           type="password"

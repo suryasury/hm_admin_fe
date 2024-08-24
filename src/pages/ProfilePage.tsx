@@ -129,7 +129,7 @@ const Profile: React.FC = () => {
     }
   };
   return (
-    <div className=" mx-auto w-full">
+    <div className=" mx-auto w-full p-8">
       <Card>
         <CardHeader>
           <CardTitle>User Profile</CardTitle>

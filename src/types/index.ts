@@ -156,6 +156,7 @@ export interface Appointment {
   pulse: string;
   patientWeight: string;
   otherVitalRemarks: string;
+  tokenNumber:string
 }
 
 // app types

@@ -1,7 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SubmitHandler, useForm } from "react-hook-form";
 
-import { APP_ROUTES } from "@/appRoutes";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -21,8 +20,10 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import Spinner from "@/components/ui/spinner";
+import { roleToHomeRoute } from "@/config/RolesToHome";
 import useErrorHandler from "@/hooks/useError";
 import { getProfileDetails, login } from "@/https/auth-service";
+import { APP_ROUTES } from "@/router/appRoutes";
 import { setUser } from "@/state/userReducer";
 import { IloginForm, User, UserState } from "@/types";
 import { replaceNullWithEmptyString } from "@/utils";
@@ -51,7 +52,7 @@ const LoginForm = () => {
   const handleError = useErrorHandler();
 
   if (user) {
-    return <Navigate to={APP_ROUTES.DASHBOARD} />;
+    return <Navigate to={roleToHomeRoute[user.role]} />;
   }
 
   const onSubmit: SubmitHandler<IloginForm> = async (data: IloginForm) => {
@@ -68,11 +69,20 @@ const LoginForm = () => {
       };
       const response = await login(payload);
       if (response.status === 200) {
+        const isFirstLogin = response.data.data.needPasswordChange;
+        if (isFirstLogin) {
+          return navigate(
+            APP_ROUTES.FIRST_TIME_PASSWORD +
+              `/${response.data.data.accessToken}`
+          );
+        }
         const detailsRes = await getProfileDetails();
         const details = detailsRes.data.data;
         const transformedDetails = replaceNullWithEmptyString(details);
         dispatch(setUser(transformedDetails as User));
-        navigate(APP_ROUTES.DASHBOARD);
+        const role = transformedDetails?.role ?? "ADMIN";
+
+        navigate(roleToHomeRoute[role]);
       }
       toast.success("Logged in successfully");
     } catch (error) {

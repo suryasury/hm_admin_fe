@@ -33,7 +33,7 @@ export const API_END_POINTS = {
   APPOINTMENT_DETAILS: "admin/hospital/appointment/details",
   APPOINTMENT_UPDATE: "admin/hospital/appointment/update/status",
   UPDATE_VItALS: "admin/hospital/appointment/update/vitals",
-  DOCTOR_MINIFIED_LISt:"admin/hospital/doctor/minified/list",
+  DOCTOR_MINIFIED_LISt: "admin/hospital/doctor/minified/list",
 
   PATIENTS_LIST: "admin/hospital/patients/list",
   PATIENT_DETAILS: "admin/patient/details",
@@ -43,4 +43,8 @@ export const API_END_POINTS = {
   SLOT_LIST: "admin/hospital/slots/admin/list",
   SLOT_DELETE: "admin/hospital/slots/delete",
   SLOT_CREATE: "admin/hospital/slots/create/single",
+
+  RESET_PASSWORD_EMAIL: "admin/forgot-password/email/request",
+  RESET_PASSWORD: "admin/reset-password",
+  CHANGE_PASSWORD: "admin/change-password",
 };

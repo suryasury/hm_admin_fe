@@ -1,5 +1,4 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { APP_ROUTES } from "@/appRoutes";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -56,6 +55,7 @@ import {
   updateVitals,
 } from "@/https/admin-service";
 import { cn } from "@/lib/utils";
+import { APP_ROUTES } from "@/router/appRoutes";
 import {
   Appointment,
   IAppointmentUpdate,
@@ -389,6 +389,9 @@ const AppointmentDetails = () => {
                 <ArrowLeft className="h-3.5 w-3.5 mr-2" />
                 Go Back
               </Button>
+              <p className="font-semibold">
+                Token No : {appointmentDetails.tokenNumber || "NA"}
+              </p>
               {showCancelBtn(appointmentDetails?.appointmentStatus) && (
                 <Button
                   size="sm"
@@ -548,7 +551,13 @@ const AppointmentDetails = () => {
                   {/* Fever level, Blood pressure, pulse(bpm), weight, other remarks */}
                   <div className="grid md:grid-flow-col w-full gap-2 mb-2">
                     <div className="flex gap-2 flex-col justify-between">
-                      <Label>Fever Level:</Label>
+                      <Label>
+                        Fever Level
+                        <span className="text-normal ml-[4px] text-sm text-muted-foreground">
+                          (°F)
+                        </span>
+                        :
+                      </Label>
                       <Input
                         disabled={
                           !showCancelBtn(appointmentDetails.appointmentStatus)
@@ -566,7 +575,13 @@ const AppointmentDetails = () => {
                       />
                     </div>
                     <div className="flex gap-2 justify-between flex-col">
-                      <Label>Blood Pressure:</Label>
+                      <Label>
+                        Blood Pressure{" "}
+                        <span className="text-normal ml-[4px] text-sm text-muted-foreground">
+                          (mmHg)
+                        </span>
+                        :
+                      </Label>
                       <Input
                         disabled={
                           !showCancelBtn(appointmentDetails.appointmentStatus)
@@ -585,7 +600,13 @@ const AppointmentDetails = () => {
                       />
                     </div>
                     <div className="flex gap-2 justify-between flex-col">
-                      <Label>Pulse: </Label>
+                      <Label>
+                        Pulse{" "}
+                        <span className="text-normal ml-[4px] text-sm text-muted-foreground">
+                          (BPM)
+                        </span>
+                        :{" "}
+                      </Label>
                       <Input
                         disabled={
                           !showCancelBtn(appointmentDetails.appointmentStatus)
@@ -601,7 +622,13 @@ const AppointmentDetails = () => {
                       />
                     </div>
                     <div className="flex gap-2 justify-between flex-col">
-                      <Label>Weight: </Label>
+                      <Label>
+                        Weight{" "}
+                        <span className="text-normal ml-[4px] text-sm text-muted-foreground">
+                          (Kgs)
+                        </span>
+                        :{" "}
+                      </Label>
                       <Input
                         disabled={
                           !showCancelBtn(appointmentDetails.appointmentStatus)
@@ -640,23 +667,22 @@ const AppointmentDetails = () => {
                       placeholder="Enter Other Remarks"
                     />
                   </div>
-                  {appointmentDetails.appointmentStatus === "APPROVED" &&
-                    user.role === "DOCTOR" && (
-                      <div className="flex  justify-end w-full gap-2 mb-2 mt-4">
-                        <Button
-                          size="sm"
-                          className="w-fit"
-                          disabled={
-                            isSubmittingVitals ||
-                            Object.values(vitals).every((i) => i === "")
-                          }
-                          onClick={handleSubmitVitals}
-                        >
-                          Save
-                          {isSubmittingVitals && <Spinner type="light" />}
-                        </Button>
-                      </div>
-                    )}
+                  {appointmentDetails.appointmentStatus === "APPROVED" && (
+                    <div className="flex  justify-end w-full gap-2 mb-2 mt-4">
+                      <Button
+                        size="sm"
+                        className="w-fit"
+                        disabled={
+                          isSubmittingVitals ||
+                          Object.values(vitals).every((i) => i === "")
+                        }
+                        onClick={handleSubmitVitals}
+                      >
+                        Save
+                        {isSubmittingVitals && <Spinner type="light" />}
+                      </Button>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
               {/* Doctor details and appointment details */}

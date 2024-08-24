@@ -1,6 +1,5 @@
 import { Plus, Search } from "lucide-react";
 
-import { APP_ROUTES } from "@/appRoutes";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import {
@@ -26,6 +25,7 @@ import {
 } from "@/components/ui/table";
 import useErrorHandler from "@/hooks/useError";
 import { getDoctorList } from "@/https/admin-service";
+import { APP_ROUTES } from "@/router/appRoutes";
 import { ICreateDoctor } from "@/types";
 import { format } from "date-fns";
 import debounce from "lodash.debounce";

@@ -1,5 +1,4 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { APP_ROUTES } from "@/appRoutes";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import {
@@ -24,6 +23,7 @@ import {
 } from "@/components/ui/table";
 import useErrorHandler from "@/hooks/useError";
 import { getFeedbackList } from "@/https/admin-service";
+import { APP_ROUTES } from "@/router/appRoutes";
 import { Feedbacks } from "@/types";
 import { format } from "date-fns";
 import debounce from "lodash.debounce";
@@ -110,6 +110,7 @@ const AppointmentFeedbackPage = () => {
               <TableRow className="font-medium">
                 <TableCell>Patient Name</TableCell>
                 <TableCell>Doctor Name</TableCell>
+                <TableCell>Token No</TableCell>
                 <TableCell className="hidden md:table-cell">
                   Appointment Date
                 </TableCell>
@@ -132,13 +133,16 @@ const AppointmentFeedbackPage = () => {
                   <TableRow
                     key={record.id.toString()}
                     onClick={() =>
-                      navigate(APP_ROUTES.APPOINTMENT_DETAILS + `/${record.appointment.id}`)
+                      navigate(
+                        APP_ROUTES.APPOINTMENT_DETAILS +
+                          `/${record.appointment.id}`
+                      )
                     }
                     className="cursor-pointer"
-
                   >
                     <TableCell>{record.appointment.patient.name}</TableCell>
                     <TableCell>{record.appointment.doctor.name}</TableCell>
+                    <TableCell>{record.appointment.tokenNumber}</TableCell>
                     <TableCell className="hidden md:table-cell">
                       {format(record.appointment.appointmentDate, "PP")}
                     </TableCell>

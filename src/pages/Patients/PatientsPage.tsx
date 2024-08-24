@@ -1,4 +1,3 @@
-import { APP_ROUTES } from "@/appRoutes";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import {
@@ -23,6 +22,7 @@ import {
 } from "@/components/ui/table";
 import useErrorHandler from "@/hooks/useError";
 import { getPatientList } from "@/https/admin-service";
+import { APP_ROUTES } from "@/router/appRoutes";
 import { PatientRecord } from "@/types";
 import { format } from "date-fns";
 import debounce from "lodash.debounce";
@@ -123,10 +123,11 @@ const PatientsPage = () => {
                 <TableRow
                   key={record.id}
                   onClick={() =>
-                    navigate(`${APP_ROUTES.PATIENT_DETAILS}/${record.patientId}`)
+                    navigate(
+                      `${APP_ROUTES.PATIENT_DETAILS}/${record.patientId}`
+                    )
                   }
                   className="cursor-pointer"
-
                 >
                   <TableCell>{record.patient.name}</TableCell>
                   <TableCell>{record.patient.phoneNumber}</TableCell>
