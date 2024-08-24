@@ -4,12 +4,14 @@ import CreateAdmin from "@/pages/Admin/CreateAdmin";
 import UpdateAdmin from "@/pages/Admin/UpdateAdmin";
 import Ailments from "@/pages/Ailments/Ailments";
 import AppointmentFeedback from "@/pages/AppointmentFeedbacks";
+import AppointmentDetails from "@/pages/Appointments/AppointmentDetails";
 import AppointmentsPage from "@/pages/Appointments/AppointmentsPage";
 import HomePage from "@/pages/DashboardPage";
 import CreateDoctor from "@/pages/Doctos/CreateDoctor";
 import Doctors from "@/pages/Doctos/Doctors";
 import UpdateDoctor from "@/pages/Doctos/UpdateDoctor";
 import Medicines from "@/pages/Medicines/Medicines";
+import PatientDetails from "@/pages/Patients/PatientDetails";
 import PatientsPage from "@/pages/Patients/PatientsPage";
 import ProfilePage from "@/pages/ProfilePage";
 import Slot from "@/pages/Slots/Slot";
@@ -123,6 +125,16 @@ export const routesAndNavItems = [
     element: <ProfilePage />,
     label: "Profile",
     icon: null,
+    roles: [ROLES.ADMIN, ROLES.DOCTOR],
+  },
+  {
+    path: APP_ROUTES.PATIENT_DETAILS + "/:id",
+    element: <PatientDetails />,
+    roles: [ROLES.ADMIN, ROLES.DOCTOR],
+  },
+  {
+    path: APP_ROUTES.APPOINTMENT_DETAILS + "/:id",
+    element: <AppointmentDetails />,
     roles: [ROLES.ADMIN, ROLES.DOCTOR],
   },
 ];

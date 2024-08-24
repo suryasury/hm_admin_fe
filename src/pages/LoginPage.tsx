@@ -51,7 +51,7 @@ const LoginForm = () => {
   const user = useSelector((state: { user: UserState }) => state.user.user);
   const handleError = useErrorHandler();
 
-  if (user) {
+  if (user && user.role) {
     return <Navigate to={roleToHomeRoute[user.role]} />;
   }
 

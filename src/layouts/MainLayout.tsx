@@ -28,25 +28,10 @@ import {
   Outlet,
   useLocation,
   useNavigate,
+  useParams,
 } from "react-router-dom";
 import { toast } from "sonner";
 
-const linkToTitle = {
-  [APP_ROUTES.DASHBOARD]: "Dashboard",
-  [APP_ROUTES.PATIENTS]: "Patients",
-  [APP_ROUTES.ADMINS]: "Admins",
-  [APP_ROUTES.CREATE_ADMIN]: "Create Admin",
-  [APP_ROUTES.UPDATE_ADMIN]: "Update Admin",
-  [APP_ROUTES.APPOINTMENTS]: "Appointments",
-  [APP_ROUTES.MEDICATION]: "Medicines",
-  [APP_ROUTES.AILMENTS]: "Ailments",
-  [APP_ROUTES.SLOTS]: "Slots",
-  [APP_ROUTES.APPOINTMENT_FEEDBACKS]: "Feedbacks",
-  [APP_ROUTES.DOCTORS]: "Doctors",
-  [APP_ROUTES.CREATE_DOCTOR]: "Create Doctor",
-  [APP_ROUTES.UPDATE_DOCTOR]: "Update Doctor",
-  [APP_ROUTES.PROFILE]: "Profile",
-};
 const generateNavItems = (userRole: string) => {
   return routesAndNavItems
     .filter((item) => item.roles.includes(userRole) && item.label && item.icon)
@@ -64,6 +49,27 @@ const DashboardLayout = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const user = useSelector((state: { user: UserState }) => state.user.user);
+  const { id } = useParams();
+
+
+  const linkToTitle = {
+    [APP_ROUTES.DASHBOARD]: "Dashboard",
+    [APP_ROUTES.PATIENTS]: "Patients",
+    [APP_ROUTES.PATIENT_DETAILS + `/${id}`]: "Patient Details",
+    [APP_ROUTES.ADMINS]: "Admins",
+    [APP_ROUTES.CREATE_ADMIN]: "Create Admin",
+    [APP_ROUTES.UPDATE_ADMIN + `/${id}`]: "Update Admin",
+    [APP_ROUTES.APPOINTMENTS]: "Appointments",
+    [APP_ROUTES.MEDICATION]: "Medicines",
+    [APP_ROUTES.AILMENTS]: "Ailments",
+    [APP_ROUTES.SLOTS]: "Slots",
+    [APP_ROUTES.APPOINTMENT_FEEDBACKS]: "Feedbacks",
+    [APP_ROUTES.DOCTORS]: "Doctors",
+    [APP_ROUTES.UPDATE_DOCTOR + `/${id}`]: "Update Doctor",
+    [APP_ROUTES.CREATE_DOCTOR]: "Create Doctor",
+    [APP_ROUTES.PROFILE]: "Profile",
+    [APP_ROUTES.APPOINTMENT_DETAILS + `/${id}`]: "Appointment Details",
+  } as const;
 
   const navItems = generateNavItems(user?.role ?? "admin");
 
@@ -71,6 +77,7 @@ const DashboardLayout = () => {
     toast.error("Session expired. Please login again.");
     return <Navigate to={APP_ROUTES.LOGIN} />;
   }
+
   return (
     <div
       className={`grid min-h-screen w-full ${

@@ -56,7 +56,6 @@ const AppointmentFeedbackPage = () => {
         limit: rowsPerPage.toString(),
         search: search,
       });
-      console.log("dataaaa", response.data);
       const data = response.data.data.feedbackList;
       const total = response.data.data.meta.totalMatchingRecords;
       setFeedBackList(data);
