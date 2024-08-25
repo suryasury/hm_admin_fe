@@ -251,6 +251,7 @@ const Profile: React.FC = () => {
                       <FormMessage />
                     </FormItem>
                   )}
+                  disabled
                 />
               </div>
 

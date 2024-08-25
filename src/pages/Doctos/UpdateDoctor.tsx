@@ -502,6 +502,7 @@ const UpdateDoctor: React.FC = () => {
                         <FormMessage />
                       </FormItem>
                     )}
+                    disabled
                   />
                 </div>
 

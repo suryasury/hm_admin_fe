@@ -279,6 +279,7 @@ const UpdateAdmin: React.FC = () => {
                         <FormMessage />
                       </FormItem>
                     )}
+                    disabled
                   />
                 </div>
 
