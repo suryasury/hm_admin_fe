@@ -24,11 +24,12 @@ import {
 import useErrorHandler from "@/hooks/useError";
 import { getFeedbackList } from "@/https/admin-service";
 import { APP_ROUTES } from "@/router/appRoutes";
-import { Feedbacks } from "@/types";
+import { Feedbacks, UserState } from "@/types";
 import { format } from "date-fns";
 import debounce from "lodash.debounce";
 import { ChevronLeft, ChevronRight, Search } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
 const AppointmentFeedbackPage = () => {
@@ -39,6 +40,7 @@ const AppointmentFeedbackPage = () => {
   const [search, setSearch] = useState("");
 
   const [currentPage, setCurrentPage] = useState(1);
+  const user = useSelector((state: { user: UserState }) => state.user.user);
 
   const [isFetching, setIsFetching] = useState<boolean>(false);
   const startIndex = (currentPage - 1) * rowsPerPage + 1;
@@ -50,11 +52,18 @@ const AppointmentFeedbackPage = () => {
   const getchFeedbackList = async () => {
     try {
       setIsFetching(true);
-      const response = await getFeedbackList({
+      
+      const queryParams: Record<string, string> = {
         page: currentPage.toString(),
         limit: rowsPerPage.toString(),
         search: search,
-      });
+      };
+      if (user && user.role === "DOCTOR") {
+        queryParams["doctorId"] = user.id;
+      }
+
+      const response = await getFeedbackList(queryParams);
+
       const data = response.data.data.feedbackList;
       const total = response.data.data.meta.totalMatchingRecords;
       setFeedBackList(data);
