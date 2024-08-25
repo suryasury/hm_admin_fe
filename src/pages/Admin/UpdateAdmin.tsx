@@ -33,6 +33,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { isValidPhoneNumber } from "react-phone-number-input";
 import { useNavigate, useParams } from "react-router-dom";
 import { z } from "zod";
+import NoDataFound from "../NoDataFound";
 
 const userSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -57,6 +58,7 @@ const UpdateAdmin: React.FC = () => {
   const [uploadingImage, setUploadingImage] = useState(false);
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [profilePicture, setProfilePicture] = useState<string>();
+  const [error, setError] = useState<boolean>(false);
 
   const imageRef = useRef<HTMLInputElement>(null);
   const handleError = useErrorHandler();
@@ -121,6 +123,7 @@ const UpdateAdmin: React.FC = () => {
 
   const fetchAdminDetails = async () => {
     try {
+      error && setError(false);
       const res = await getAdminDetails(id!);
 
       const replaceNullWithEmptyString = (obj: IUpdateUser): IUpdateUser => {
@@ -145,7 +148,8 @@ const UpdateAdmin: React.FC = () => {
         phoneNumber: `${transformedDetails?.isd_code}${transformedDetails?.phoneNumber}`,
       });
     } catch (error) {
-      handleError(error, "Failed to fetch doctor details");
+      handleError(error, "Failed to fetch admin details");
+      setError(true);
     }
   };
 
@@ -164,223 +168,230 @@ const UpdateAdmin: React.FC = () => {
         <ArrowLeft className="h-3.5 w-3.5 mr-2" />
         Go Back
       </Button>
-      <Card>
-        <CardHeader>
-          <CardTitle>Admin Details</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {/* First Row */}
-          <div className="flex flex-wrap gap-4 mb-4">
-            <div className="flex items-center w-full md:w-1/3">
-              <div className="flex gap-3 items-center">
-                <Avatar className="w-24 h-24">
-                  <AvatarImage
-                    // @ts-expect-error-free
-                    src={profilePicture ?? form.getValues("signedUrl")}
-                    alt="image"
-                    className="object-fit aspect-square"
+      {error ? (
+        <NoDataFound message="Admin details not found" />
+      ) : (
+        <Card>
+          <CardHeader>
+            <CardTitle>Admin Details</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {/* First Row */}
+            <div className="flex flex-wrap gap-4 mb-4">
+              <div className="flex items-center w-full md:w-1/3">
+                <div className="flex gap-3 items-center">
+                  <Avatar className="w-24 h-24">
+                    <AvatarImage
+                      // @ts-expect-error-free
+                      src={profilePicture ?? form.getValues("signedUrl")}
+                      alt="image"
+                      className="object-fit aspect-square"
+                    />
+                    <AvatarFallback
+                      className="hover:cursor-pointer"
+                      onClick={() => imageRef?.current?.click()}
+                    >
+                      <UserIcon className="w-12 h-12" />
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex flex-col items-start ml-4">
+                    <Label>Profile Picture</Label>
+                    <p className="text-gray-400 text-sm mt-1">
+                      Choose a photo from your device
+                    </p>
+                    <Button
+                      variant="link"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        imageRef?.current?.click();
+                      }}
+                      className="mt-2 ml-[-12px]"
+                    >
+                      {uploadingImage ? (
+                        <>
+                          <Loader className="animate-spin" />
+                          Uploading...
+                        </>
+                      ) : form.getValues("profilePictureUrl") ? (
+                        "Update Picture"
+                      ) : (
+                        "Add Picture"
+                      )}
+                    </Button>
+                  </div>
+                  <input
+                    ref={imageRef}
+                    type="file"
+                    className="hidden"
+                    onChange={handleImageUpload}
+                    accept="image/jpeg,image/png"
                   />
-                  <AvatarFallback
-                    className="hover:cursor-pointer"
-                    onClick={() => imageRef?.current?.click()}
-                  >
-                    <UserIcon className="w-12 h-12" />
-                  </AvatarFallback>
-                </Avatar>
-                <div className="flex flex-col items-start ml-4">
-                  <Label>Profile Picture</Label>
-                  <p className="text-gray-400 text-sm mt-1">
-                    Choose a photo from your device
-                  </p>
+                </div>
+              </div>
+            </div>
+            <Form {...form}>
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-4"
+              >
+                {/* First Row */}
+
+                <div className="flex flex-wrap gap-4 mb-4">
+                  <FormField
+                    control={form.control}
+                    name="name"
+                    render={({ field }) => (
+                      <FormItem className="w-full md:w-1/2 lg:w-1/4 mb-4">
+                        <FormLabel>Name</FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="phoneNumber"
+                    render={({ field }) => (
+                      <FormItem className="w-full md:w-1/2 lg:w-1/4 mb-4">
+                        <FormLabel>Phone Number</FormLabel>
+                        <FormControl>
+                          <PhoneInput
+                            defaultCountry="IN"
+                            placeholder="Enter a phone number"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem className="w-full md:w-1/2 lg:w-1/4 mb-4">
+                        <FormLabel>Email</FormLabel>
+                        <FormControl>
+                          <Input {...field} type="email" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <hr className="my-4" />
+
+                {/* Third Row */}
+                <p className="font-semibold text-md">
+                  Address Details{" "}
+                  <span className="text-muted-foreground text-sm">
+                    (optional)
+                  </span>
+                </p>
+                <div className="flex flex-wrap gap-4 mb-4">
+                  <FormField
+                    control={form.control}
+                    name="houseNumber"
+                    render={({ field }) => (
+                      <FormItem className="w-full md:w-1/2 lg:w-1/4 mb-4">
+                        <FormLabel>House Number</FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="address1"
+                    render={({ field }) => (
+                      <FormItem className="w-full md:w-1/2 lg:w-1/4 mb-4">
+                        <FormLabel>Colony</FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="city"
+                    render={({ field }) => (
+                      <FormItem className="w-full md:w-1/2 lg:w-1/4 mb-4">
+                        <FormLabel>City</FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="state"
+                    render={({ field }) => (
+                      <FormItem className="w-full md:w-1/2 lg:w-1/4 mb-4">
+                        <FormLabel>State</FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="country"
+                    render={({ field }) => (
+                      <FormItem className="w-full md:w-1/2 lg:w-1/4 mb-4">
+                        <FormLabel>Country</FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="pincode"
+                    render={({ field }) => (
+                      <FormItem className="w-full md:w-1/2 lg:w-1/4 mb-4">
+                        <FormLabel>Pincode</FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <div className="flex w-full justify-end">
                   <Button
-                    variant="link"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      imageRef?.current?.click();
-                    }}
-                    className="mt-2 ml-[-12px]"
+                    type="submit"
+                    className="md:w-fit w-full mt-4 self-right"
+                    disabled={submitting || !form.formState.isDirty}
                   >
-                    {uploadingImage ? (
+                    {submitting ? (
                       <>
-                        <Loader className="animate-spin" />
-                        Uploading...
+                        <Spinner type="light" />
+                        Please wait...
                       </>
-                    ) : form.getValues("profilePictureUrl") ? (
-                      "Update Picture"
                     ) : (
-                      "Add Picture"
+                      "Update"
                     )}
                   </Button>
                 </div>
-                <input
-                  ref={imageRef}
-                  type="file"
-                  className="hidden"
-                  onChange={handleImageUpload}
-                  accept="image/jpeg,image/png"
-                />
-              </div>
-            </div>
-          </div>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              {/* First Row */}
-
-              <div className="flex flex-wrap gap-4 mb-4">
-                <FormField
-                  control={form.control}
-                  name="name"
-                  render={({ field }) => (
-                    <FormItem className="w-full md:w-1/2 lg:w-1/4 mb-4">
-                      <FormLabel>Name</FormLabel>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="phoneNumber"
-                  render={({ field }) => (
-                    <FormItem className="w-full md:w-1/2 lg:w-1/4 mb-4">
-                      <FormLabel>Phone Number</FormLabel>
-                      <FormControl>
-                        <PhoneInput
-                          defaultCountry="IN"
-                          placeholder="Enter a phone number"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem className="w-full md:w-1/2 lg:w-1/4 mb-4">
-                      <FormLabel>Email</FormLabel>
-                      <FormControl>
-                        <Input {...field} type="email" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              <hr className="my-4" />
-
-              {/* Third Row */}
-              <p className="font-semibold text-md">
-                Address Details{" "}
-                <span className="text-muted-foreground text-sm">
-                  (optional)
-                </span>
-              </p>
-              <div className="flex flex-wrap gap-4 mb-4">
-                <FormField
-                  control={form.control}
-                  name="houseNumber"
-                  render={({ field }) => (
-                    <FormItem className="w-full md:w-1/2 lg:w-1/4 mb-4">
-                      <FormLabel>House Number</FormLabel>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="address1"
-                  render={({ field }) => (
-                    <FormItem className="w-full md:w-1/2 lg:w-1/4 mb-4">
-                      <FormLabel>Colony</FormLabel>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="city"
-                  render={({ field }) => (
-                    <FormItem className="w-full md:w-1/2 lg:w-1/4 mb-4">
-                      <FormLabel>City</FormLabel>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="state"
-                  render={({ field }) => (
-                    <FormItem className="w-full md:w-1/2 lg:w-1/4 mb-4">
-                      <FormLabel>State</FormLabel>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="country"
-                  render={({ field }) => (
-                    <FormItem className="w-full md:w-1/2 lg:w-1/4 mb-4">
-                      <FormLabel>Country</FormLabel>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="pincode"
-                  render={({ field }) => (
-                    <FormItem className="w-full md:w-1/2 lg:w-1/4 mb-4">
-                      <FormLabel>Pincode</FormLabel>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-              <div className="flex w-full justify-end">
-                <Button
-                  type="submit"
-                  className="md:w-fit w-full mt-4 self-right"
-                  disabled={submitting || !form.formState.isDirty}
-                >
-                  {submitting ? (
-                    <>
-                      <Spinner type="light" />
-                      Please wait...
-                    </>
-                  ) : (
-                    "Update"
-                  )}
-                </Button>
-              </div>
-            </form>
-          </Form>
-        </CardContent>
-      </Card>
+              </form>
+            </Form>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 };

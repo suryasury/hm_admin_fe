@@ -204,7 +204,7 @@ const DashboardPage = () => {
                   {appointmentList.length === 0 ? (
                     <TableBody>
                       <TableRow>
-                        <TableCell colSpan={4} className="text-center">
+                        <TableCell colSpan={5} className="text-center">
                           No Appoinments
                         </TableCell>
                       </TableRow>

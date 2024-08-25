@@ -32,7 +32,6 @@ import debounce from "lodash.debounce";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import NoDataFound from "../NoDataFound";
 
 const Doctors = () => {
   const [noOfPages, setNoOfPages] = useState(15);
@@ -64,7 +63,7 @@ const Doctors = () => {
       setNoOfPages(Math.ceil(totalRecords / rowsPerPage));
       setDoctorList(data);
     } catch (error) {
-      handleError(error, "Failed to fetch medicine list");
+      handleError(error, "Failed to fetch doctor list");
     } finally {
       setIsFetching(false);
     }
@@ -79,10 +78,6 @@ const Doctors = () => {
     fetchDoctorsList();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentPage, rowsPerPage, search]);
-
-  if (!isFetching && search === "" && doctorList.length === 0) {
-    return <NoDataFound message="No doctors found" />;
-  }
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
@@ -103,7 +98,7 @@ const Doctors = () => {
               {isFetching && (
                 <div className="flex gap-1 ml-40 items-start text-muted-foreground">
                   <Spinner />
-                  Looking for admins....
+                  Looking for doctors....
                 </div>
               )}
             </div>

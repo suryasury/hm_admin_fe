@@ -64,7 +64,6 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import NoDataFound from "../NoDataFound";
 
 const showCancelBtn = (status: string) => {
   if (status === "COMPLETED") return false;
@@ -141,7 +140,7 @@ const AppointmentsPage = () => {
       setNoOfPages(Math.ceil(totalRecords / rowsPerPage));
       setAppointmentList(data);
     } catch (error) {
-      handleError(error, "Failed to fetch medicine list");
+      handleError(error, "Failed to fetch appointment list");
     } finally {
       setIsFetching(false);
     }
@@ -175,16 +174,6 @@ const AppointmentsPage = () => {
     date,
     selectedDoctor,
   ]);
-
-  if (
-    !isFetching &&
-    search === "" &&
-    appointmentsList.length === 0 &&
-    selectedDoctor === undefined &&
-    date === undefined
-  ) {
-    return <NoDataFound message="No appointments found" />;
-  }
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
@@ -330,7 +319,7 @@ const AppointmentsPage = () => {
             {isFetching && (
               <div className="flex gap-1 ml-10 items-start text-muted-foreground ">
                 <Spinner />
-                Looking for appointments....
+                Looking for appointments...
               </div>
             )}
           </div>
@@ -350,7 +339,7 @@ const AppointmentsPage = () => {
             {appointmentsList.length === 0 ? (
               <TableBody>
                 <TableCell
-                  colSpan={4}
+                  colSpan={6}
                   className="font-medium text-muted-foreground mt-4 text-center"
                 >
                   No Appointments found...

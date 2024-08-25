@@ -30,7 +30,6 @@ import debounce from "lodash.debounce";
 import { ChevronLeft, ChevronRight, Search } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import NoDataFound from "./NoDataFound";
 
 const AppointmentFeedbackPage = () => {
   const [noOfPages, setNoOfPages] = useState(15);
@@ -77,10 +76,6 @@ const AppointmentFeedbackPage = () => {
     setCurrentPage(1);
   }, 400);
 
-  if (!isFetching && search === "" && feedbackList.length === 0) {
-    return <NoDataFound message="No Feedbacks given by patients yet" />;
-  }
-
   return (
     <div className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
       <Card x-chunk="dashboard-06-chunk-0">
@@ -114,13 +109,13 @@ const AppointmentFeedbackPage = () => {
                   Appointment Date
                 </TableCell>
                 <TableCell>Overall Satisfication</TableCell>
-                <TableCell className="hidden md:table-cell">remarks</TableCell>
+                <TableCell className="hidden md:table-cell">Remarks</TableCell>
               </TableRow>
             </TableHeader>
             {feedbackList.length === 0 ? (
               <TableBody>
                 <TableCell
-                  colSpan={5}
+                  colSpan={6}
                   className="font-medium text-muted-foreground mt-4 text-center"
                 >
                   No Feedbacks found...

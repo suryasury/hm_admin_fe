@@ -58,7 +58,7 @@ const Ailments = () => {
 
       setAilmentList(data);
     } catch (error) {
-      handleError(error, "Failed to fetch medicine list");
+      handleError(error, "Failed to fetch ailment list");
     } finally {
       setIsFetching(false);
     }
@@ -101,7 +101,7 @@ const Ailments = () => {
         <CardContent>
           <div className="flex flex-1 flex-col gap-4  md:gap-8">
             <div className="flex justify-between items-center w-full mb-2 mt-4 flex-wrap">
-              <div className="relative flex  items-center">
+              <div className="relative flex flex-1 items-center">
                 <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
                   onChange={handleSearch}
@@ -109,17 +109,17 @@ const Ailments = () => {
                   placeholder="Search..."
                   className="w-full rounded-lg bg-background pl-8 md:w-[200px] lg:w-[320px]"
                 />
-                {isFetching && (
-                  <div className="flex gap-1 ml-40 items-start text-muted-foreground">
-                    <Spinner />
-                    Looking for medicines....
-                  </div>
-                )}
               </div>
+              {isFetching && (
+                <div className="flex gap-1  flex-1 items-start text-muted-foreground">
+                  <Spinner />
+                  Looking for ailments....
+                </div>
+              )}
               <Button
                 size="sm"
                 variant="outline"
-                className="gap-1"
+                className="gap-1 self-end"
                 onClick={() => {
                   setFormMode("create");
                   setShowCreateAilment(true);

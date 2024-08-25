@@ -32,7 +32,6 @@ import debounce from "lodash.debounce";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import NoDataFound from "../NoDataFound";
 
 const Admins = () => {
   const [noOfPages, setNoOfPages] = useState(15);
@@ -62,7 +61,7 @@ const Admins = () => {
       setNoOfPages(Math.ceil(totalRecords / rowsPerPage));
       setAdminList(data);
     } catch (error) {
-      handleError(error, "Failed to fetch medicine list");
+      handleError(error, "Failed to fetch admin list");
     } finally {
       setIsFetching(false);
     }
@@ -77,10 +76,6 @@ const Admins = () => {
     fetchMedicineList();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentPage, rowsPerPage, search]);
-
-  if (!isFetching && search === "" && adminList.length === 0) {
-    return <NoDataFound message="No admins found" />;
-  }
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
@@ -133,7 +128,7 @@ const Admins = () => {
             {adminList.length === 0 ? (
               <TableBody>
                 <TableCell
-                  colSpan={8}
+                  colSpan={4}
                   className="font-medium text-muted-foreground mt-4 text-center "
                 >
                   No Admins found...

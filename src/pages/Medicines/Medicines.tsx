@@ -49,7 +49,6 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import NoDataFound from "../NoDataFound";
 import MedicineForm from "./MedicineForm";
 
 type mode = "view" | "edit" | "create" | null;
@@ -134,10 +133,6 @@ const Medicines = () => {
       setSelectedMedicine(null);
     }
   }, [formMode]);
-
-  if (!isFetching && search === "" && medicinesList.length === 0) {
-    return <NoDataFound message="No medicines found" />;
-  }
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">

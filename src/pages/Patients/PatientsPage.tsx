@@ -29,7 +29,6 @@ import debounce from "lodash.debounce";
 import { ChevronLeft, ChevronRight, Search } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import NoDataFound from "../NoDataFound";
 
 const PatientsPage = () => {
   const [noOfPages, setNoOfPages] = useState(15);
@@ -77,9 +76,6 @@ const PatientsPage = () => {
     setCurrentPage(1);
   }, 900);
 
-  if (!isFetching && search === "" && patientList.length === 0) {
-    return <NoDataFound message="No Patients found" />;
-  }
   return (
     <div className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
       <Card x-chunk="dashboard-06-chunk-0">
@@ -118,34 +114,44 @@ const PatientsPage = () => {
                 <TableCell className="hidden md:table-cell">Email</TableCell>
               </TableRow>
             </TableHeader>
-            <TableBody>
-              {patientList.map((record) => (
-                <TableRow
-                  key={record.id}
-                  onClick={() =>
-                    navigate(
-                      `${APP_ROUTES.PATIENT_DETAILS}/${record.patientId}`
-                    )
-                  }
-                  className="cursor-pointer"
-                >
-                  <TableCell>{record.patient.name}</TableCell>
-                  <TableCell>{record.patient.phoneNumber}</TableCell>
-                  <TableCell className="capitalize">
-                    {record.patient.gender.toLowerCase()}
-                  </TableCell>
-                  <TableCell className="hidden md:table-cell">
-                    {format(record.patient.dateOfBirth, "PP")}
-                  </TableCell>
-                  <TableCell className="hidden md:table-cell">
-                    {record.patient.bloodGroup}
-                  </TableCell>
-                  <TableCell className="hidden md:table-cell">
-                    {record.patient.email}
+            {patientList.length === 0 ? (
+              <TableBody>
+                <TableRow>
+                  <TableCell colSpan={6} className="text-center">
+                    No Patients found...
                   </TableCell>
                 </TableRow>
-              ))}
-            </TableBody>
+              </TableBody>
+            ) : (
+              <TableBody>
+                {patientList.map((record) => (
+                  <TableRow
+                    key={record.id}
+                    onClick={() =>
+                      navigate(
+                        `${APP_ROUTES.PATIENT_DETAILS}/${record.patientId}`
+                      )
+                    }
+                    className="cursor-pointer"
+                  >
+                    <TableCell>{record.patient.name}</TableCell>
+                    <TableCell>{record.patient.phoneNumber}</TableCell>
+                    <TableCell className="capitalize">
+                      {record.patient.gender.toLowerCase()}
+                    </TableCell>
+                    <TableCell className="hidden md:table-cell">
+                      {format(record.patient.dateOfBirth, "PP")}
+                    </TableCell>
+                    <TableCell className="hidden md:table-cell">
+                      {record.patient.bloodGroup}
+                    </TableCell>
+                    <TableCell className="hidden md:table-cell">
+                      {record.patient.email}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            )}
           </Table>
         </CardContent>
         <CardFooter className="flex-wrap gap-4">

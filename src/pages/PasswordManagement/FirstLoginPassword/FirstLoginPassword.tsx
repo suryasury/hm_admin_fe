@@ -17,16 +17,18 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import Spinner from "@/components/ui/spinner";
+import { roleToHomeRoute } from "@/config/RolesToHome";
 import useErrorHandler from "@/hooks/useError";
-import { changePassword } from "@/https/auth-service";
+import { changePassword, getProfileDetails } from "@/https/auth-service";
 import { APP_ROUTES } from "@/router/appRoutes";
-import { UserState } from "@/types";
+import { setUser } from "@/state/userReducer";
+import { User, UserState } from "@/types";
+import { replaceNullWithEmptyString } from "@/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AxiosError } from "axios";
-import { CheckCircle } from "lucide-react"; // Import CheckCircle icon
 import { useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -59,11 +61,11 @@ const FirstLoginPassword: React.FC = () => {
   });
 
   const [submitting, setSubmitting] = useState<boolean>(false);
-  const [submitted, setSubmitted] = useState<boolean>(false);
 
   const user = useSelector((state: { user: UserState }) => state.user.user);
   const handleError = useErrorHandler();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   if (user) {
     return <Navigate to={APP_ROUTES.DASHBOARD} />;
@@ -82,7 +84,12 @@ const FirstLoginPassword: React.FC = () => {
       const response = await changePassword(payload, token!);
       if (response.status === 200) {
         toast.success("Password has been reset successfully.");
-        setSubmitted(true); // Set submission status to true
+        const detailsRes = await getProfileDetails();
+        const details = detailsRes.data.data;
+        const transformedDetails = replaceNullWithEmptyString(details);
+        dispatch(setUser(transformedDetails as User));
+        const role = transformedDetails?.role ?? "ADMIN";
+        navigate(roleToHomeRoute[role]);
       }
     } catch (error) {
       if ((error as AxiosError).response?.status === 403) {
@@ -96,109 +103,90 @@ const FirstLoginPassword: React.FC = () => {
 
   return (
     <section className="flex justify-center items-center">
-      {submitted ? (
-        <Card className="w-full max-w-md">
-          <CardContent className="text-center mt-8">
-            <div className="flex items-center justify-center mb-4">
-              <CheckCircle className="w-12 h-12 text-green-500" />
-            </div>
-            <p className="text-lg font-medium text-gray-700 mb-2">
-              Your password has been reset successfully.
-            </p>
-            <p className="text-sm text-gray-500">
-              You can now log in with your new password.
-            </p>
-            <Button className="mt-4" onClick={() => navigate(APP_ROUTES.LOGIN)}>
-              Go to Login
-            </Button>
-          </CardContent>
-        </Card>
-      ) : (
-        <Card className="w-full max-w-sm">
-          <CardHeader>
-            <CardTitle className="text-2xl">Set New Password</CardTitle>
-            <CardDescription>
-              Enter your new password and confirm it below.
-            </CardDescription>
-          </CardHeader>
-          <Form {...form}>
-            <form
-              onSubmit={form.handleSubmit(onSubmit)}
-              className="space-y-2"
-              autoComplete="off"
-            >
-              <CardContent className="grid gap-4">
-                <FormField
-                  control={form.control}
-                  name="currentPassword"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Password from the email</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="password"
-                          placeholder="************"
-                          autoComplete="current-password"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="newPassword"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>New Password</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="password"
-                          placeholder="************"
-                          autoComplete="new-password"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="confirmPassword"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Confirm Password</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="password"
-                          placeholder="************"
-                          autoComplete="off"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </CardContent>
-              <CardFooter className="flex-col">
-                <Button type="submit" className="w-full" disabled={submitting}>
-                  {submitting ? (
-                    <>
-                      <Spinner type="light" />
-                      Please wait...
-                    </>
-                  ) : (
-                    "Reset Password"
-                  )}
-                </Button>
-              </CardFooter>
-            </form>
-          </Form>
-        </Card>
-      )}
+      <Card className="w-full max-w-sm">
+        <CardHeader>
+          <CardTitle className="text-2xl">Set New Password</CardTitle>
+          <CardDescription>
+            Enter your new password and confirm it below.
+          </CardDescription>
+        </CardHeader>
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="space-y-2"
+            autoComplete="off"
+          >
+            <CardContent className="grid gap-4">
+              <FormField
+                control={form.control}
+                name="currentPassword"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Password from the email</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="password"
+                        placeholder="************"
+                        autoComplete="current-password"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="newPassword"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>New Password</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="password"
+                        placeholder="************"
+                        autoComplete="new-password"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="confirmPassword"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Confirm Password</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="password"
+                        placeholder="************"
+                        autoComplete="off"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </CardContent>
+            <CardFooter className="flex-col">
+              <Button type="submit" className="w-full" disabled={submitting}>
+                {submitting ? (
+                  <>
+                    <Spinner type="light" />
+                    Please wait...
+                  </>
+                ) : (
+                  "Reset Password"
+                )}
+              </Button>
+            </CardFooter>
+          </form>
+        </Form>
+      </Card>
     </section>
   );
 };

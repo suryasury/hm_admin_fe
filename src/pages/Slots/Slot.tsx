@@ -129,9 +129,9 @@ const Slot = () => {
         <CardContent>
           <div className="flex flex-1 flex-col gap-4  md:gap-8">
             <div className="flex justify-between items-center w-full mb-2 mt-4 flex-wrap">
-              <div className="relative flex items-center">
+              <div className="relative flex flex-1 justify-center items-center">
                 {isFetching && (
-                  <div className="flex gap-1 ml-40 items-start text-muted-foreground">
+                  <div className="flex gap-1  items-start text-muted-foreground">
                     <Spinner />
                     Looking for slots....
                   </div>
