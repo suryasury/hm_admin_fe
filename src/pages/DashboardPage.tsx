@@ -112,7 +112,7 @@ const DashboardPage = () => {
           <span className="text-muted-foreground">Fetching metrics...</span>
         </div>
       ) : (
-        <div className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
+        <div className="flex flex-1 flex-col gap-4  md:gap-8">
           <div className="grid gap-4 md:grid-cols-2 md:gap-8 lg:grid-cols-4">
             <Card x-chunk="dashboard-01-chunk-0">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -271,9 +271,9 @@ const DashboardPage = () => {
                 <Card x-chunk="dashboard-01-chunk-0">
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">
-                      Appointments Scheduled 
+                      Appointments Scheduled
                     </CardTitle>
-                    <CalendarCheck className="h-5 w-5 text-yellow-500" />
+                    <Hourglass className="h-5 w-5 text-yellow-500" />
                   </CardHeader>
                   <CardContent>
                     <div className="text-2xl font-bold text-yellow-500">
@@ -286,7 +286,7 @@ const DashboardPage = () => {
                     <CardTitle className="text-sm font-medium">
                       Completed Appointments
                     </CardTitle>
-                    <Hourglass className="h-5 w-5 text-green-700" />
+                    <CalendarCheck className="h-5 w-5 text-green-700" />
                   </CardHeader>
                   <CardContent>
                     <div className="text-2xl font-bold text-green-700">

@@ -189,7 +189,7 @@ const Slot = () => {
         open={deleteSlotId !== null}
         onOpenChange={() => setDeleteSlotId(null)}
       >
-        <AlertDialogContent>
+        <AlertDialogContent className="max-w-[360px] md:max-w-fit rounded-lg">
           <AlertDialogHeader>
             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
             <AlertDialogDescription>
@@ -220,7 +220,7 @@ const Slot = () => {
         }}
       >
         <DialogContent
-          className="max-w-[375px] md:max-w-[475px]"
+          className="max-w-[360px] md:max-w-fit rounded-lg"
           onOpenAutoFocus={(e) => e.preventDefault()}
         >
           <DialogHeader>

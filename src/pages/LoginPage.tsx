@@ -26,7 +26,7 @@ import { getProfileDetails, login } from "@/https/auth-service";
 import { APP_ROUTES } from "@/router/appRoutes";
 import { setUser } from "@/state/userReducer";
 import { IloginForm, User, UserState } from "@/types";
-import { replaceNullWithEmptyString } from "@/utils";
+import { encryptPassword, replaceNullWithEmptyString } from "@/utils";
 import { AxiosError } from "axios";
 import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
@@ -67,6 +67,7 @@ const LoginForm = () => {
 
       const payload = {
         ...data,
+        password: await encryptPassword(data.password),
         userNameType,
       };
       const response = await login(payload);

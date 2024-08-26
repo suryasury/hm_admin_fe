@@ -96,11 +96,11 @@ const Ailments = () => {
   }, [formMode]);
 
   return (
-    <div className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
+    <div className="flex flex-1 flex-col gap-4  md:gap-8">
       <Card x-chunk="dashboard-06-chunk-0">
         <CardContent>
           <div className="flex flex-1 flex-col gap-4  md:gap-8">
-            <div className="flex justify-between items-center w-full mb-2 mt-4 flex-wrap">
+            <div className="flex justify-between items-center w-full mb-2 mt-4 flex-wrap gap-2">
               <div className="relative flex flex-1 items-center">
                 <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
@@ -204,8 +204,8 @@ const Ailments = () => {
         open={deleteAilmentId !== null}
         onOpenChange={() => setDeleteAilmentId(null)}
       >
-        <AlertDialogContent>
-          <AlertDialogHeader>
+                        <AlertDialogContent className="max-w-[360px] md:max-w-fit rounded-lg">
+                        <AlertDialogHeader>
             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
             <AlertDialogDescription>
               This action cannot be undone. This will permanently delete the

@@ -256,7 +256,7 @@ const CreateDoctor: React.FC = () => {
   };
 
   return (
-    <div className=" p-8 mx-auto w-full">
+    <div className="mx-auto">
       <Button
         variant="link"
         size="sm"
@@ -494,9 +494,8 @@ const CreateDoctor: React.FC = () => {
                   value={selectedWeek}
                   onValueChange={setSelectedWeek}
                   className="min-h-[500px]"
-                  orientation="vertical"
                 >
-                  <TabsList>
+                  <TabsList className="flex-wrap h-100">
                     {weekDayList.map((item) => (
                       <TabsTrigger key={item.id} value={item.id}>
                         {item.name}

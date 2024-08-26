@@ -322,7 +322,7 @@ const AppointmentDetails = () => {
 
   const CancelDialogContent = () => {
     return (
-      <AlertDialogContent className="max-w-[375px] md:max-w-[475px]">
+      <AlertDialogContent className="max-w-[360px] md:max-w-fit rounded-lg">
         <AlertDialogHeader>
           <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
           <AlertDialogDescription>
@@ -349,7 +349,7 @@ const AppointmentDetails = () => {
   };
   const CompleteAppointmentContent = () => {
     return (
-      <AlertDialogContent className="max-w-[375px] md:max-w-[475px]">
+      <AlertDialogContent className="max-w-[360px] md:max-w-fit rounded-lg">
         <AlertDialogHeader>
           <AlertDialogTitle>Complete Appointment ?</AlertDialogTitle>
         </AlertDialogHeader>
@@ -378,7 +378,7 @@ const AppointmentDetails = () => {
           <Spinner /> Fetching details...
         </div>
       ) : appointmentDetails ? (
-        <div className="p-8">
+        <div>
           <div className="flex justify-between items-center gap-4">
             <Button
               variant="link"
@@ -389,6 +389,8 @@ const AppointmentDetails = () => {
               <ArrowLeft className="h-3.5 w-3.5 mr-2" />
               Go Back
             </Button>
+          </div>
+          <div className="flex justify-between items-center mb-2">
             <p className="font-semibold">
               Token No : {appointmentDetails.tokenNumber || "NA"}
             </p>
@@ -506,7 +508,7 @@ const AppointmentDetails = () => {
                     <div className="border-t-2 border-solid border-primary/10 my-4" />
                     <div className="flex flex-col justify-between w-full gap-2 mb-2 mt-4">
                       <CardTitle>Feedback</CardTitle>
-                      <div className="grid md:grid-cols-6 w-full gap-2  mb-2">
+                      <div className="flex gap-4 flex-wrap mb-2">
                         <div className="flex  gap-2 w-fit">
                           <p className="text-muted-foreground">Rating: </p>
                           <p className="font-medium">
@@ -664,7 +666,9 @@ const AppointmentDetails = () => {
                     placeholder="Enter Other Remarks"
                   />
                 </div>
-                {appointmentDetails.appointmentStatus === "APPROVED" && (
+                {/* @ts-expect-error-free */}
+                {(appointmentDetails.appointmentStatus !== "CANCELLED" ||
+                  appointmentDetails.appointmentStatus !== "COMPLETED") && (
                   <div className="flex  justify-end w-full gap-2 mb-2 mt-4">
                     <Button
                       size="sm"
@@ -971,7 +975,7 @@ const AppointmentDetails = () => {
         onOpenChange={setShowPrescriptionDialog}
       >
         <DialogContent
-          className="max-w-[375px] md:max-w-[475px]"
+          className="max-w-[360px] md:max-w-fit rounded-lg"
           ref={dialogRef}
         >
           <DialogHeader>

@@ -14,6 +14,8 @@ const useErrorHandler = () => {
       toast.error(customMessage, {
         description: message || "Something went wrong. Please try again later.",
       });
+    } else{
+      toast.error("Something went wrong. Please try again later.");
     }
   };
 

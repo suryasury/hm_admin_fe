@@ -107,7 +107,7 @@ const Doctors = () => {
   }, [currentPage, rowsPerPage, search]);
 
   return (
-    <div className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
+    <div className="flex flex-1 flex-col gap-4  md:gap-8">
       <Card x-chunk="dashboard-06-chunk-0">
         <CardContent>
           <div className="table-header flex justify-between w-full mb-2 mt-4">
@@ -148,7 +148,9 @@ const Doctors = () => {
               <TableRow>
                 <TableHead>Doctor Name</TableHead>
                 <TableHead>Speciality</TableHead>
-                <TableHead>Phone Number</TableHead>
+                <TableHead className="hidden md:table-cell">
+                  Phone Number
+                </TableHead>
                 <TableHead>Email</TableHead>
                 <TableHead className="hidden md:table-cell">
                   Created At
@@ -177,7 +179,9 @@ const Doctors = () => {
                   >
                     <TableCell>{item.name}</TableCell>
                     <TableCell>{item.speciality}</TableCell>
-                    <TableCell>{item.phoneNumber}</TableCell>
+                    <TableCell className="hidden md:table-cell">
+                      {item.phoneNumber}
+                    </TableCell>
                     <TableCell>{item.email}</TableCell>
                     <TableCell className="hidden md:table-cell">
                       {item.createdAt && format(item.createdAt, "PP")}
@@ -286,34 +290,33 @@ const Doctors = () => {
           </CardFooter>
         </CardContent>
         <AlertDialog
-        open={deletedId !== null}
-        onOpenChange={() => setDeleteId(null)}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the
-              doctor from our servers.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setDeleteId(null)}>
-              Cancel
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() => {
-                handleDelete();
-              }}
-            >
-              Continue
-              {isDeleting && <Spinner type="light" />}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+          open={deletedId !== null}
+          onOpenChange={() => setDeleteId(null)}
+        >
+          <AlertDialogContent className="max-w-[360px] md:max-w-fit rounded-lg">
+            <AlertDialogHeader>
+              <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This action cannot be undone. This will permanently delete the
+                doctor from our servers.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel onClick={() => setDeleteId(null)}>
+                Cancel
+              </AlertDialogCancel>
+              <AlertDialogAction
+                onClick={() => {
+                  handleDelete();
+                }}
+              >
+                Continue
+                {isDeleting && <Spinner type="light" />}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </Card>
-      
     </div>
   );
 };

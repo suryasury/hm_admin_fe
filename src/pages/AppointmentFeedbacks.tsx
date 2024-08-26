@@ -52,7 +52,7 @@ const AppointmentFeedbackPage = () => {
   const getchFeedbackList = async () => {
     try {
       setIsFetching(true);
-      
+
       const queryParams: Record<string, string> = {
         page: currentPage.toString(),
         limit: rowsPerPage.toString(),
@@ -86,7 +86,7 @@ const AppointmentFeedbackPage = () => {
   }, 400);
 
   return (
-    <div className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
+    <div className="flex flex-1 flex-col gap-4  md:gap-8">
       <Card x-chunk="dashboard-06-chunk-0">
         <CardContent>
           <div className="table-header flex justify-between w-full mb-2 mt-4">

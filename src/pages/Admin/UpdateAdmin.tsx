@@ -158,7 +158,7 @@ const UpdateAdmin: React.FC = () => {
   }, []);
 
   return (
-    <div className=" p-8 mx-auto w-full">
+    <div className="mx-auto w-full">
       <Button
         variant="link"
         size="sm"

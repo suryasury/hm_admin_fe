@@ -135,7 +135,7 @@ const Medicines = () => {
   }, [formMode]);
 
   return (
-    <div className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
+    <div className="flex flex-1 flex-col gap-4 md:gap-8 ">
       <Card x-chunk="dashboard-06-chunk-0">
         <CardContent>
           <div className="table-header flex justify-between items-center w-full mb-2 mt-4 flex-wrap">
@@ -380,7 +380,7 @@ const Medicines = () => {
         open={deleteMedicineId !== null}
         onOpenChange={() => setDeleteMedicineId(null)}
       >
-        <AlertDialogContent>
+        <AlertDialogContent className="max-w-[360px] md:max-w-fit rounded-lg">
           <AlertDialogHeader>
             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
             <AlertDialogDescription>

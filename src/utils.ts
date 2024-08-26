@@ -2,6 +2,7 @@
 
 import { compareAsc, set, startOfToday } from "date-fns";
 import { IUpdateDoctor } from "./types";
+import * as cryptoJS from "crypto-js";
 
 // Map RHF's dirtyFields over the `data` received by `handleSubmit` and return the changed subset of that data.
 export function dirtyValues(
@@ -89,3 +90,16 @@ export const isEndTimeSmallerThanStart = (
   return compareAsc(endDate, startDate) < 0;
 };
 
+
+
+export const encryptPassword = async (password: string) => {
+  try {
+    return cryptoJS.AES.encrypt(
+      password,
+      import.meta.env.REACT_APP_CRYPTO_SECRET_KEY as string
+    ).toString();
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+};

@@ -123,7 +123,7 @@ const AilmentForm = ({
                   name="description"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Description</FormLabel>
+                      <FormLabel>Description<span className="text-muted-foreground ml-1">(optional)</span></FormLabel>
                       <FormControl>
                         <Input
                           placeholder="Description"

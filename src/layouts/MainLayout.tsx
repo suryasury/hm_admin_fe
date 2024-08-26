@@ -51,7 +51,6 @@ const DashboardLayout = () => {
   const user = useSelector((state: { user: UserState }) => state.user.user);
   const { id } = useParams();
 
-
   const linkToTitle = {
     [APP_ROUTES.DASHBOARD]: "Dashboard",
     [APP_ROUTES.PATIENTS]: "Patients",
@@ -85,7 +84,7 @@ const DashboardLayout = () => {
       }`}
     >
       <div
-        className={`hidden border-r bg-muted/40 md:block ${
+        className={`hidden border-r  md:block ${
           collapseSidebar ? "w-fit" : ""
         }`}
       >
@@ -125,7 +124,7 @@ const DashboardLayout = () => {
         </div>
       </div>
       <div className="flex flex-col">
-        <header className="flex h-14 items-center gap-4 border-b bg-muted/40 px-4 lg:h-[60px] lg:px-6">
+        <header className="flex h-14 items-center gap-4 border-b  px-4 lg:h-[60px] lg:px-6">
           <Sheet onOpenChange={setOpenSidebar} open={openSidebar}>
             <SheetTrigger asChild>
               <Button
@@ -146,7 +145,7 @@ const DashboardLayout = () => {
                     onClick={() => setOpenSidebar(false)}
                     className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-all hover:text-primary  ${
                       location.pathname.includes(item.link)
-                        ? "bg-primary bg-opacity-10"
+                        ? "bg-primary/10"
                         : "text-muted-foreground"
                     }`}
                   >
@@ -202,8 +201,9 @@ const DashboardLayout = () => {
             </DropdownMenuContent>
           </DropdownMenu>
         </header>
-
-        <Outlet />
+        <div className="p-4 md:p-8">
+          <Outlet />
+        </div>
       </div>
     </div>
   );

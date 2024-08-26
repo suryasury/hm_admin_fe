@@ -143,7 +143,7 @@ const PatientDetails = () => {
       <Spinner /> Fetching details...
     </div>
   ) : patientDetails ? (
-    <div className="p-8">
+    <div>
       <Button
         variant="link"
         size="sm"
@@ -153,61 +153,52 @@ const PatientDetails = () => {
         <ArrowLeft className="h-3.5 w-3.5 mr-2" />
         Go Back
       </Button>
-      <div className="flex gap-4  md:gap-8 flex-wrap">
-        <Card
-          x-chunk="appointment-details-patient-details-chunk"
-          className="h-fit max-w-[375px]"
-        >
+      <div className="flex flex-col gap-4  md:gap-8 flex-wrap">
+        <Card x-chunk="appointment-details-patient-details-chunk">
           <CardHeader>
             <CardTitle>Patient Details</CardTitle>
           </CardHeader>
           <CardContent className="min-w-[300px]">
-            <div className="flex flex-col justify-between w-full gap-2 mb-2">
-              <div className="flex justify-between items-center gap-2">
+            <div className="flex md:flex-row flex-col justify-between w-full gap-2 mb-2">
+              <div className="flex justify-between flex-col gap-2">
                 <p className="text-muted-foreground">Name: </p>
-                <p className="font-medium self-start">{patientDetails?.name}</p>
+                <p className="font-medium">{patientDetails?.name}</p>
               </div>
-              <div className="flex justify-between items-center gap-2">
+              <div className="flex justify-between flex-col gap-2">
                 <p className="text-muted-foreground">Date of Birth: </p>
-                <p className="font-medium self-start">
+                <p className="font-medium">
                   {patientDetails?.dateOfBirth &&
                     format(new Date(patientDetails.dateOfBirth), "PP")}
                 </p>
               </div>
-              <div className="flex justify-between items-center gap-2">
+              <div className="flex justify-between flex-col gap-2">
                 <p className="text-muted-foreground">Gender: </p>
-                <p className="font-medium self-start capitalize">
+                <p className="font-medium capitalize">
                   {patientDetails?.gender.toLowerCase()}
                 </p>
               </div>
-              <div className="flex justify-between items-center gap-2">
+              <div className="flex justify-between flex-col gap-2">
                 <p className="text-muted-foreground">Mobile: </p>
-                <p className="font-medium self-start">
-                  {patientDetails?.phoneNumber}
-                </p>
+                <p className="font-medium">{patientDetails?.phoneNumber}</p>
               </div>
-              <div className="flex justify-between items-center gap-2">
+              <div className="flex justify-between flex-col gap-2">
                 <p className="text-muted-foreground">Email: </p>
-                <p className="font-medium self-start">
-                  {patientDetails?.email}
-                </p>
+                <p className="font-medium">{patientDetails?.email}</p>
               </div>
-              <div className="flex justify-between items-center gap-2">
+              <div className="flex justify-between flex-col gap-2">
                 <p className="text-muted-foreground">Blood Group: </p>
-                <p className="font-medium self-start">
-                  {patientDetails?.bloodGroup}
-                </p>
+                <p className="font-medium">{patientDetails?.bloodGroup}</p>
               </div>
-              <div className="flex justify-between items-center gap-2">
+              <div className="flex justify-between flex-col gap-2">
                 <p className="text-muted-foreground">Address: </p>
-                <p className="font-medium text-right">
+                <p className="font-medium">
                   {patientDetails && getCombinedAddress(patientDetails!)}
                 </p>
               </div>
             </div>
           </CardContent>
         </Card>
-        <Card className="flex-1 h-fit" x-chunk="dashboard-01-chunk-4">
+        <Card x-chunk="dashboard-01-chunk-4">
           <CardHeader className="flex flex-row items-center">
             <CardTitle>Appointments</CardTitle>
           </CardHeader>

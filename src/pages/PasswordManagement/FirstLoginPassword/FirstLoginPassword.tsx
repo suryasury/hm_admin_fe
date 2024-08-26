@@ -21,6 +21,7 @@ import useErrorHandler from "@/hooks/useError";
 import { changePassword } from "@/https/auth-service";
 import { APP_ROUTES } from "@/router/appRoutes";
 import { UserState } from "@/types";
+import { encryptPassword } from "@/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AxiosError } from "axios";
 import { CheckCircle, Eye, EyeOff } from "lucide-react";
@@ -78,8 +79,8 @@ const FirstLoginPassword: React.FC = () => {
       setSubmitting(true);
 
       const payload: Record<string, string> = {
-        oldPassword: data.currentPassword,
-        newPassword: data.newPassword,
+        oldPassword: await encryptPassword(data.currentPassword),
+        newPassword: await encryptPassword(data.newPassword),
       };
       const response = await changePassword(payload, token!);
       if (response.status === 200) {

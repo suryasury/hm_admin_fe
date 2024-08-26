@@ -21,6 +21,7 @@ import useErrorHandler from "@/hooks/useError";
 import { restPassword } from "@/https/auth-service";
 import { APP_ROUTES } from "@/router/appRoutes";
 import { UserState } from "@/types";
+import { encryptPassword } from "@/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AxiosError } from "axios";
 import { CheckCircle, Eye, EyeOff } from "lucide-react"; // Import CheckCircle icon
@@ -71,8 +72,8 @@ const ResetPassword: React.FC = () => {
   ) => {
     try {
       setSubmitting(true);
-      console.log(data);
-      const response = await restPassword(data.newPassword, token!);
+      const enc_password = await encryptPassword(data.newPassword);
+      const response = await restPassword(enc_password, token!);
       if (response.status === 200) {
         toast.success("Password has been reset successfully.");
         setSubmitted(true);
