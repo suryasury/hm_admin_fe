@@ -37,7 +37,6 @@ import NoDataFound from "../NoDataFound";
 
 const userSchema = z.object({
   name: z.string().min(1, "Name is required"),
-  email: z.string().email("Invalid email"),
   phoneNumber: z
     .string()
     .refine(isValidPhoneNumber, { message: "Invalid phone number" })

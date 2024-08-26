@@ -158,7 +158,6 @@ const RenderSlots = ({
 };
 const userSchema = z.object({
   name: z.string().min(3, "Name is required"),
-  email: z.string().email("Invalid email"),
   speciality: z.string().min(3, "Speciality is required"),
   phoneNumber: z
     .string()
