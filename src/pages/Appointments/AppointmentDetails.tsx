@@ -506,7 +506,7 @@ const AppointmentDetails = () => {
                     <div className="border-t-2 border-solid border-primary/10 my-4" />
                     <div className="flex flex-col justify-between w-full gap-2 mb-2 mt-4">
                       <CardTitle>Feedback</CardTitle>
-                      <div className="grid md:grid-cols-6 w-full  mb-2">
+                      <div className="grid md:grid-cols-6 w-full gap-2  mb-2">
                         <div className="flex  gap-2 w-fit">
                           <p className="text-muted-foreground">Rating: </p>
                           <p className="font-medium">

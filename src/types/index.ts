@@ -383,6 +383,7 @@ export interface IUpdateUserProfile {
   phoneNumber?: string;
   profilePictureUrl?: string;
   signedUrl?: string;
+  isd_code?: string;
 }
 
 export interface IMedicalReportType {

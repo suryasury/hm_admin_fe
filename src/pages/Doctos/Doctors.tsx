@@ -1,5 +1,15 @@
-import { Plus, Search } from "lucide-react";
+import { Plus, Search, Trash2 } from "lucide-react";
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import {
@@ -24,7 +34,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import useErrorHandler from "@/hooks/useError";
-import { getDoctorList } from "@/https/admin-service";
+import { deleteUser, getDoctorList } from "@/https/admin-service";
 import { APP_ROUTES } from "@/router/appRoutes";
 import { ICreateDoctor } from "@/types";
 import { format } from "date-fns";
@@ -32,6 +42,7 @@ import debounce from "lodash.debounce";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 const Doctors = () => {
   const [noOfPages, setNoOfPages] = useState(15);
@@ -43,6 +54,8 @@ const Doctors = () => {
   const [doctorList, setDoctorList] = useState<
     ICreateDoctor["doctorDetails"][]
   >([]);
+  const [deletedId, setDeleteId] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState<boolean>(false);
   const startIndex = (currentPage - 1) * rowsPerPage + 1;
   const endIndex = doctorList.length + startIndex - 1;
 
@@ -66,6 +79,20 @@ const Doctors = () => {
       handleError(error, "Failed to fetch doctor list");
     } finally {
       setIsFetching(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    try {
+      setIsDeleting(true);
+      await deleteUser(deletedId as string);
+      setDeleteId(null);
+      toast.success("Doctor deleted successfully");
+      fetchDoctorsList();
+    } catch (error) {
+      handleError(error, "Failed to delete doctor");
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -126,6 +153,7 @@ const Doctors = () => {
                 <TableHead className="hidden md:table-cell">
                   Created At
                 </TableHead>
+                <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
             {doctorList.length === 0 ? (
@@ -153,6 +181,19 @@ const Doctors = () => {
                     <TableCell>{item.email}</TableCell>
                     <TableCell className="hidden md:table-cell">
                       {item.createdAt && format(item.createdAt, "PP")}
+                    </TableCell>
+                    <TableCell>
+                      <Button
+                        variant={"outline"}
+                        size="icon"
+                        className="hover:border-destructive hover:bg-destructive/10"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setDeleteId(item.id as string);
+                        }}
+                      >
+                        <Trash2 className="h-4 w-4 text-destructive" />
+                      </Button>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -244,7 +285,35 @@ const Doctors = () => {
             </div>
           </CardFooter>
         </CardContent>
+        <AlertDialog
+        open={deletedId !== null}
+        onOpenChange={() => setDeleteId(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the
+              doctor from our servers.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setDeleteId(null)}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                handleDelete();
+              }}
+            >
+              Continue
+              {isDeleting && <Spinner type="light" />}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
       </Card>
+      
     </div>
   );
 };

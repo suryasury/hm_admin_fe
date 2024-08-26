@@ -81,6 +81,10 @@ const Profile: React.FC = () => {
         form.formState.dirtyFields,
         form.getValues()
       );
+      if (payload.phoneNumber) {
+        payload.isd_code = payload.phoneNumber.slice(0, 3);
+        payload.phoneNumber = payload.phoneNumber.slice(3);
+      }
       const res = await updateProfile(payload);
       if (res.status === 200) {
         toast.success("Profile updated successfully");
@@ -88,7 +92,10 @@ const Profile: React.FC = () => {
         const details = detailsRes.data.data;
         const transformedDetails = replaceNullWithEmptyString(details);
         dispatch(setUser(transformedDetails as User));
-        form.reset(detailsRes.data.data);
+        form.reset({
+          ...transformedDetails,
+          phoneNumber: `${transformedDetails?.isd_code}${transformedDetails?.phoneNumber}`,
+        });
       }
     } catch (error) {
       console.log(error);

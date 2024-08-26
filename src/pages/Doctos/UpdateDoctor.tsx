@@ -296,8 +296,8 @@ const UpdateDoctor: React.FC = () => {
       if (form.formState.isDirty) {
         payload.doctorDetails = {
           ...data,
-          phoneNumber: data?.phoneNumber?.substring(3),
-          isd_code: data?.phoneNumber?.substring(0, 3),
+            phoneNumber: data?.phoneNumber?.substring(3),
+            isd_code: data?.phoneNumber?.substring(0, 3),
           role: "DOCTOR",
         };
       }

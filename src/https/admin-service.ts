@@ -152,3 +152,7 @@ export const getDoctorDetails = async (id: string) => {
 export const uploadDoctorProfilePicture = async (data: FormData) => {
   return api.post(API_END_POINTS.DOCTOR_PROFILE_PIC, data);
 };
+
+export const deleteUser = async (id: string) => {
+  return api.delete(API_END_POINTS.DELETE_USER + `/${id}`);
+};

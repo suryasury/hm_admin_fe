@@ -119,10 +119,10 @@ const DashboardPage = () => {
                 <CardTitle className="text-sm font-medium">
                   Total Appointments
                 </CardTitle>
-                <CalendarPlus2 className="h-4 w-4 text-muted-foreground" />
+                <CalendarPlus2 className="h-5 w-5  text-yellow-500" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">
+                <div className="text-2xl font-bold text-yellow-500">
                   {metrics?.totalAppointments}
                 </div>
               </CardContent>
@@ -132,10 +132,10 @@ const DashboardPage = () => {
                 <CardTitle className="text-sm font-medium">
                   Total Doctors
                 </CardTitle>
-                <Stethoscope className="h-4 w-4 text-muted-foreground" />
+                <Stethoscope className="h-5 w-5 text-green-500" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">
+                <div className="text-2xl font-bold text-green-500">
                   {metrics?.totalDoctors}
                 </div>
               </CardContent>
@@ -145,10 +145,10 @@ const DashboardPage = () => {
                 <CardTitle className="text-sm font-medium">
                   Total Patients
                 </CardTitle>
-                <Users className="h-4 w-4 text-muted-foreground" />
+                <Users className="h-5 w-5 text-purple-500" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">
+                <div className="text-2xl font-bold text-purple-500">
                   {metrics?.totalPatients}
                 </div>
               </CardContent>
@@ -158,10 +158,10 @@ const DashboardPage = () => {
                 <CardTitle className="text-sm font-medium">
                   Active Appointments
                 </CardTitle>
-                <Activity className="h-4 w-4 text-muted-foreground" />
+                <Activity className="h-5 w-5 text-blue-500" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">
+                <div className="text-2xl font-bold text-blue-500">
                   {metrics?.activeAppointments}
                 </div>
               </CardContent>
@@ -184,7 +184,7 @@ const DashboardPage = () => {
                 >
                   <Link to={APP_ROUTES.APPOINTMENTS}>
                     View All
-                    <ArrowUpRight className="h-4 w-4" />
+                    <ArrowUpRight className="h-5 w-5" />
                   </Link>
                 </Button>
               </CardHeader>
@@ -273,10 +273,10 @@ const DashboardPage = () => {
                     <CardTitle className="text-sm font-medium">
                       Appointments Scheduled 
                     </CardTitle>
-                    <CalendarCheck className="h-4 w-4 text-muted-foreground" />
+                    <CalendarCheck className="h-5 w-5 text-yellow-500" />
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">
+                    <div className="text-2xl font-bold text-yellow-500">
                       {todaysMetrics?.todaysAppointment}
                     </div>
                   </CardContent>
@@ -286,10 +286,10 @@ const DashboardPage = () => {
                     <CardTitle className="text-sm font-medium">
                       Completed Appointments
                     </CardTitle>
-                    <Hourglass className="h-4 w-4 text-muted-foreground" />
+                    <Hourglass className="h-5 w-5 text-green-700" />
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">
+                    <div className="text-2xl font-bold text-green-700">
                       {todaysMetrics?.completedAppointments}
                     </div>
                   </CardContent>
@@ -299,10 +299,10 @@ const DashboardPage = () => {
                     <CardTitle className="text-sm font-medium">
                       Cancelled Appointments
                     </CardTitle>
-                    <CalendarX className="h-4 w-4 text-muted-foreground" />
+                    <CalendarX className="h-5 w-5 text-red-700" />
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">
+                    <div className="text-2xl font-bold text-red-700">
                       {todaysMetrics?.todaysCancelledAppointments}
                     </div>
                   </CardContent>

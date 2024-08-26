@@ -23,7 +23,7 @@ import { APP_ROUTES } from "@/router/appRoutes";
 import { UserState } from "@/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AxiosError } from "axios";
-import { CheckCircle } from "lucide-react";
+import { CheckCircle, Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { useSelector } from "react-redux";
@@ -60,6 +60,7 @@ const FirstLoginPassword: React.FC = () => {
 
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [submitted, setSubmitted] = useState<boolean>(false);
+  const [showPassword, setShowPassword] = useState<boolean>(false);
 
   const user = useSelector((state: { user: UserState }) => state.user.user);
   const handleError = useErrorHandler();
@@ -145,12 +146,25 @@ const FirstLoginPassword: React.FC = () => {
                     <FormItem>
                       <FormLabel>Password from the email</FormLabel>
                       <FormControl>
-                        <Input
-                          type="password"
-                          placeholder="************"
-                          autoComplete="current-password"
-                          {...field}
-                        />
+                        <div className="relative">
+                          <Input
+                            type={showPassword ? "text" : "password"}
+                            placeholder="************"
+                            autoComplete="current-password"
+                            {...field}
+                          />
+                          {showPassword ? (
+                            <Eye
+                              className="absolute cursor-pointer top-2 right-2 hover:text-muted-foreground"
+                              onClick={() => setShowPassword((prev) => !prev)}
+                            />
+                          ) : (
+                            <EyeOff
+                              className="absolute cursor-pointer top-2 right-2 hover:text-muted-foreground"
+                              onClick={() => setShowPassword((prev) => !prev)}
+                            />
+                          )}
+                        </div>
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -163,12 +177,25 @@ const FirstLoginPassword: React.FC = () => {
                     <FormItem>
                       <FormLabel>New Password</FormLabel>
                       <FormControl>
-                        <Input
-                          type="password"
-                          placeholder="************"
-                          autoComplete="new-password"
-                          {...field}
-                        />
+                        <div className="relative">
+                          <Input
+                            type={showPassword ? "text" : "password"}
+                            placeholder="************"
+                            autoComplete="new-password"
+                            {...field}
+                          />
+                          {showPassword ? (
+                            <Eye
+                              className="absolute cursor-pointer top-2 right-2 hover:text-muted-foreground"
+                              onClick={() => setShowPassword((prev) => !prev)}
+                            />
+                          ) : (
+                            <EyeOff
+                              className="absolute cursor-pointer top-2 right-2 hover:text-muted-foreground"
+                              onClick={() => setShowPassword((prev) => !prev)}
+                            />
+                          )}
+                        </div>
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -181,12 +208,25 @@ const FirstLoginPassword: React.FC = () => {
                     <FormItem>
                       <FormLabel>Confirm Password</FormLabel>
                       <FormControl>
-                        <Input
-                          type="password"
-                          placeholder="************"
-                          autoComplete="off"
-                          {...field}
-                        />
+                        <div className="relative">
+                          <Input
+                            type={showPassword ? "text" : "password"}
+                            placeholder="************"
+                            autoComplete="off"
+                            {...field}
+                          />
+                          {showPassword ? (
+                            <Eye
+                              className="absolute cursor-pointer top-2 right-2 hover:text-muted-foreground"
+                              onClick={() => setShowPassword((prev) => !prev)}
+                            />
+                          ) : (
+                            <EyeOff
+                              className="absolute cursor-pointer top-2 right-2 hover:text-muted-foreground"
+                              onClick={() => setShowPassword((prev) => !prev)}
+                            />
+                          )}
+                        </div>
                       </FormControl>
                       <FormMessage />
                     </FormItem>

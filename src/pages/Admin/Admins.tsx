@@ -1,5 +1,14 @@
-import { Plus, Search } from "lucide-react";
-
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import {
@@ -24,14 +33,17 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import useErrorHandler from "@/hooks/useError";
-import { getAdminList } from "@/https/admin-service";
+import { deleteUser, getAdminList } from "@/https/admin-service";
 import { APP_ROUTES } from "@/router/appRoutes";
-import { ICreateUser } from "@/types";
+import { ICreateUser, UserState } from "@/types";
+import { statusClasses } from "@/utils";
 import { format } from "date-fns";
 import debounce from "lodash.debounce";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Plus, Search, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 const Admins = () => {
   const [noOfPages, setNoOfPages] = useState(15);
@@ -41,13 +53,15 @@ const Admins = () => {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [search, setSearch] = useState("");
   const [adminList, setAdminList] = useState<ICreateUser[]>([]);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState<boolean>(false);
   const startIndex = (currentPage - 1) * rowsPerPage + 1;
   const endIndex = adminList.length + startIndex - 1;
-
+  const user = useSelector((state: { user: UserState }) => state.user.user);
   const navigate = useNavigate();
   const handleError = useErrorHandler();
 
-  const fetchMedicineList = async () => {
+  const fetchDoctorList = async () => {
     try {
       setIsFetching(true);
       const response = await getAdminList({
@@ -67,13 +81,27 @@ const Admins = () => {
     }
   };
 
+  const handleDelete = async () => {
+    try {
+      setIsDeleting(true);
+      await deleteUser(deleteId as string);
+      setDeleteId(null);
+      toast.success("Admin deleted successfully");
+      fetchDoctorList();
+    } catch (error) {
+      handleError(error, "Failed to delete admin");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   const handleSearch = debounce((e: React.ChangeEvent<HTMLInputElement>) => {
     setSearch(e.target.value);
     setCurrentPage(1);
   }, 900);
 
   useEffect(() => {
-    fetchMedicineList();
+    fetchDoctorList();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentPage, rowsPerPage, search]);
 
@@ -123,6 +151,7 @@ const Admins = () => {
                 <TableHead className="hidden md:table-cell">
                   Created At
                 </TableHead>
+                <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
             {adminList.length === 0 ? (
@@ -146,9 +175,32 @@ const Admins = () => {
                   >
                     <TableCell>{item.name}</TableCell>
                     <TableCell>{item.phoneNumber}</TableCell>
-                    <TableCell>{item.email}</TableCell>
+                    <TableCell>
+                      {item.email}
+                      {item.id === user?.id && (
+                        <Badge
+                          className={`mt-2  md:mt-0 ml-2 ${statusClasses.COMPLETED} pointer-events-none`}
+                        >
+                          You
+                        </Badge>
+                      )}
+                    </TableCell>
                     <TableCell className="hidden md:table-cell">
                       {item.createdAt && format(item.createdAt, "PP")}
+                    </TableCell>
+                    <TableCell>
+                      <Button
+                        variant={"outline"}
+                        size="icon"
+                        className="hover:border-destructive hover:bg-destructive/10"
+                        disabled={item.id === user?.id}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setDeleteId(item.id as string);
+                        }}
+                      >
+                        <Trash2 className="h-4 w-4 text-destructive" />
+                      </Button>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -241,6 +293,33 @@ const Admins = () => {
           </CardFooter>
         </CardContent>
       </Card>
+      <AlertDialog
+        open={deleteId !== null}
+        onOpenChange={() => setDeleteId(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the
+              doctor from our servers.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setDeleteId(null)}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                handleDelete();
+              }}
+            >
+              Continue
+              {isDeleting && <Spinner type="light" />}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

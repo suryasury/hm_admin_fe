@@ -2,6 +2,7 @@ export const API_END_POINTS = {
   LOGIN: "admin/login",
   PROFILE_DETAILS: "admin/details",
   UPDATE_PROFILE: "admin/hospital/user/profile/update",
+  DELETE_USER:"admin/user",
 
   ADMIN_LIST: "admin/hospital/admin/list",
   ADMIN_DETAILS: "admin/hospital/admin/details",

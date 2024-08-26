@@ -3,7 +3,7 @@ import { clearUser } from "@/state/userReducer";
 import axios from "axios";
 
 export const api = axios.create({
-  baseURL: "https://uat-hm-api.tech42.in/api/v1/",
+  baseURL: import.meta.env.REACT_APP_API_BASE_URL,
   withCredentials: true,
 });
 
@@ -16,5 +16,5 @@ api.interceptors.response.use(
       store.dispatch(clearUser());
     }
     return Promise.reject(error);
-  },
+  }
 );
