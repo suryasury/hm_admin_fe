@@ -301,7 +301,7 @@ const Admins = () => {
         open={deleteId !== null}
         onOpenChange={() => setDeleteId(null)}
       >
-        <AlertDialogContent className="max-w-[360px] md:max-w-fit rounded-lg">
+        <AlertDialogContent className="max-w-[360px] md:max-w-[500px] rounded-lg">
           <AlertDialogHeader>
             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
             <AlertDialogDescription>

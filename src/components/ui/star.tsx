@@ -20,6 +20,7 @@ const StarRating: React.FC<StarRatingProps> = ({
   const [hover, setHover] = useState<number>(0);
 
   const handleClick = (index: number) => {
+    if(disable) return
     setRating(index);
     if (onClick) {
       onClick(index);

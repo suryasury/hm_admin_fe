@@ -204,8 +204,8 @@ const Ailments = () => {
         open={deleteAilmentId !== null}
         onOpenChange={() => setDeleteAilmentId(null)}
       >
-                        <AlertDialogContent className="max-w-[360px] md:max-w-fit rounded-lg">
-                        <AlertDialogHeader>
+        <AlertDialogContent className="max-w-[360px] md:max-w-[500px] rounded-lg">
+          <AlertDialogHeader>
             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
             <AlertDialogDescription>
               This action cannot be undone. This will permanently delete the

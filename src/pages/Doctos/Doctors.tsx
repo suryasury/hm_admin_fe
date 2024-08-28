@@ -107,7 +107,7 @@ const Doctors = () => {
   }, [currentPage, rowsPerPage, search]);
 
   return (
-    <div className="flex flex-1 flex-col gap-4  md:gap-8">
+    <div className="flex flex-col gap-4  md:gap-8">
       <Card x-chunk="dashboard-06-chunk-0">
         <CardContent>
           <div className="table-header flex justify-between w-full mb-2 mt-4">
@@ -293,7 +293,7 @@ const Doctors = () => {
           open={deletedId !== null}
           onOpenChange={() => setDeleteId(null)}
         >
-          <AlertDialogContent className="max-w-[360px] md:max-w-fit rounded-lg">
+          <AlertDialogContent className="max-w-[360px] md:max-w-[500px] rounded-lg">
             <AlertDialogHeader>
               <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
               <AlertDialogDescription>

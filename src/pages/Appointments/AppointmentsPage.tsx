@@ -1,3 +1,13 @@
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import {
@@ -41,10 +51,16 @@ import useErrorHandler from "@/hooks/useError";
 import {
   getAppointmentList,
   getDoctorMinifiedList,
+  updateAppointment,
 } from "@/https/admin-service";
 import { cn } from "@/lib/utils";
 import { APP_ROUTES } from "@/router/appRoutes";
-import { Appointment, IFilterDoctor, UserState } from "@/types";
+import {
+  Appointment,
+  IAppointmentUpdate,
+  IFilterDoctor,
+  UserState,
+} from "@/types";
 import { statusClasses } from "@/utils";
 import { CaretSortIcon } from "@radix-ui/react-icons";
 import { CommandLoading } from "cmdk";
@@ -65,6 +81,7 @@ import {
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 const showCancelBtn = (status: string) => {
   if (status === "COMPLETED") return false;
@@ -114,6 +131,7 @@ const AppointmentsPage = () => {
   const [selectedDoctor, setSelectedDoctor] = useState<IFilterDoctor>();
   const [showDoctorList, setShowDoctorList] = useState(false);
   const [fetchingDoctors, setFetchingDoctors] = useState(false);
+  const [deleteId, setDeleteId] = useState<string | undefined>(undefined);
   const user = useSelector((state: { user: UserState }) => state.user.user);
   const startIndex = (currentPage - 1) * rowsPerPage + 1;
   const endIndex = appointmentsList?.length + startIndex - 1;
@@ -161,6 +179,55 @@ const AppointmentsPage = () => {
     } finally {
       setFetchingDoctors(false);
     }
+  };
+
+  const CancelDialogContent = () => {
+    const [isCancelling, setIsCancelling] = useState<boolean>(false);
+
+    const handleCancel = async () => {
+      try {
+        setIsCancelling(true);
+        const payload: IAppointmentUpdate = {
+          status: "CANCELLED",
+          appointmentId: deleteId!,
+        };
+        const res = await updateAppointment(payload);
+        if (res.status === 200) {
+          setDeleteId(undefined);
+          toast.success("Appoinement cancelled successfully");
+          fetchAppointmentList();
+        }
+      } catch (error) {
+        handleError(error, "Error cancelling appointment");
+      } finally {
+        setIsCancelling(false);
+      }
+    };
+    return (
+      <AlertDialogContent className="max-w-[360px] md:max-w-[500px] rounded-lg">
+        <AlertDialogHeader>
+          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+          <AlertDialogDescription>
+            This action cannot be undone. This will permanently cancel the
+            appointment.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+
+        <AlertDialogFooter>
+          <AlertDialogCancel onClick={() => setDeleteId(undefined)}>
+            Cancel
+          </AlertDialogCancel>
+          <AlertDialogAction
+            onClick={() => {
+              handleCancel();
+            }}
+          >
+            Continue
+            {isCancelling && <Spinner type="light" />}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    );
   };
 
   const handleSearch = debounce((e: React.ChangeEvent<HTMLInputElement>) => {
@@ -219,12 +286,14 @@ const AppointmentsPage = () => {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent>
                     <DropdownMenuItem
+                      className="cursor-pointer"
                       onClick={() => setAppointmentStatus("SCHEDULED")}
                     >
                       <Hourglass className="mr-2 h-4 w-4" />
                       Scheduled
                     </DropdownMenuItem>
                     <DropdownMenuItem
+                      className="cursor-pointer"
                       onClick={() => setAppointmentStatus("APPROVED")}
                     >
                       <CheckCircle className="mr-2 h-4 w-4" />
@@ -232,6 +301,7 @@ const AppointmentsPage = () => {
                     </DropdownMenuItem>
 
                     <DropdownMenuItem
+                      className="cursor-pointer"
                       onClick={() => setAppointmentStatus("COMPLETED")}
                     >
                       <CheckCircle2 className="mr-2 h-4 w-4" /> Completed
@@ -239,12 +309,16 @@ const AppointmentsPage = () => {
 
                     <DropdownMenuItem
                       onClick={() => setAppointmentStatus("CANCELLED")}
+                      className="cursor-pointer"
                     >
                       <X className="mr-2 h-4 w-4" />
                       Cancelled
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={() => setAppointmentStatus("")}>
+                    <DropdownMenuItem
+                      className="cursor-pointer"
+                      onClick={() => setAppointmentStatus("")}
+                    >
                       Clear Filter
                     </DropdownMenuItem>
                   </DropdownMenuContent>
@@ -289,7 +363,7 @@ const AppointmentsPage = () => {
                             <CommandGroup>
                               {doctorsList.map((doctor: IFilterDoctor) => (
                                 <CommandItem
-                                  className="gap-2"
+                                  className="gap-2 cursor-pointer"
                                   key={doctor.id}
                                   value={doctor.name?.toString()}
                                   onSelect={() => {
@@ -430,7 +504,12 @@ const AppointmentsPage = () => {
                           {showCancelBtn(appointment.appointmentStatus) && (
                             <>
                               <DropdownMenuSeparator />
-                              <DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setDeleteId(appointment.id);
+                                }}
+                              >
                                 <X className="mr-2 h-4 w-4" />
                                 Cancel
                               </DropdownMenuItem>
@@ -529,6 +608,9 @@ const AppointmentsPage = () => {
             }
           </div>
         </CardFooter>
+        <AlertDialog open={!!deleteId}>
+          <CancelDialogContent />
+        </AlertDialog>
       </Card>
     </div>
   );

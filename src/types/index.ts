@@ -141,6 +141,7 @@ export interface Appointment {
     isd_code: string;
     bloodGroup: string;
     dateOfBirth: string;
+    gender:string
   };
   ailment: Ailment;
   doctorSlots: DoctorSlots;
@@ -156,7 +157,14 @@ export interface Appointment {
   pulse: string;
   patientWeight: string;
   otherVitalRemarks: string;
-  tokenNumber:string
+  tokenNumber:string;
+  hospital:{
+    name:string;
+    address:string;
+    phoneNumber:string;
+    isd_code:string;
+    pincode:string;
+  }
 }
 
 // app types

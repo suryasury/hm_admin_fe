@@ -183,14 +183,18 @@ const DashboardLayout = () => {
                 <span className="sr-only">Toggle user menu</span>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
+            <DropdownMenuContent align="end" className="cursor-pointer">
               <DropdownMenuLabel>My Account</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => navigate(APP_ROUTES.PROFILE)}>
+              <DropdownMenuItem
+                className="cursor-pointer"
+                onClick={() => navigate(APP_ROUTES.PROFILE)}
+              >
                 Profile
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem
+                className="cursor-pointer"
                 onClick={() => {
                   dispatch(clearUser());
                   navigate(APP_ROUTES.LOGIN);

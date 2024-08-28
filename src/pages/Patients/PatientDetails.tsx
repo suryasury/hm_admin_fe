@@ -234,6 +234,7 @@ const PatientDetails = () => {
                           `${APP_ROUTES.APPOINTMENT_DETAILS}/${appointment.id}`
                         )
                       }
+                      className="cursor-pointer"
                     >
                       <TableCell className="font-medium">
                         <div className="font-medium">
