@@ -11,7 +11,13 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardFooter,
+} from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Command,
@@ -35,6 +41,7 @@ import {
   DropdownMenuContent,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -50,6 +57,7 @@ import { Textarea } from "@/components/ui/textarea";
 import useErrorHandler from "@/hooks/useError";
 import {
   getAppointmentDetails,
+  getAppointmentList,
   getMedicineList,
   updateAppointment,
   updateVitals,
@@ -63,12 +71,36 @@ import {
   IMedcation,
   User,
 } from "@/types";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { statusClasses } from "@/utils";
 import { CaretSortIcon } from "@radix-ui/react-icons";
 import { CommandLoading } from "cmdk";
 import { format } from "date-fns";
 import debounce from "lodash.debounce";
-import { ArrowLeft, Check, CheckIcon, Plus, Trash2, X } from "lucide-react";
+import {
+  ArrowLeft,
+  Check,
+  CheckIcon,
+  Plus,
+  Trash2,
+  X,
+  MoreVertical,
+  Eye,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+} from "@/components/ui/pagination";
 import { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
@@ -151,13 +183,13 @@ const AppointmentDetails = () => {
   const [searchMedicine, setSearchMedicine] = useState<string>("");
   const [fetchingMedicines, setFetchingMedicines] = useState<boolean>(false);
   const [medicinesList, setMedicinesList] = useState<ICreateMedicationForm[]>(
-    []
+    [],
   );
   const [showPrescriptionDialog, setShowPrescriptionDialog] =
     useState<boolean>(false);
   const [prescription, setPrescription] = useState<IMedcation[]>([]);
   const [tempPrescription, setTempPrescription] = useState<IMedcation>(
-    PRESCRIPTION_INITIAL_STATE
+    PRESCRIPTION_INITIAL_STATE,
   );
   const [codeToMedicineMap, setCodeToMedicineMap] =
     useState<Record<string, string>>();
@@ -171,7 +203,7 @@ const AppointmentDetails = () => {
   const [isApproving, setIsApproving] = useState<boolean>(false);
   const [remarks, setRemarks] = useState<string>("");
   const user = useSelector(
-    (state: { user: { user: User } }) => state.user.user
+    (state: { user: { user: User } }) => state.user.user,
   );
   const [vitals, setVitals] =
     useState<Record<string, string>>(vitalsInitialState);
@@ -179,16 +211,43 @@ const AppointmentDetails = () => {
   const printRef = useRef<HTMLDivElement>(null);
 
   const handleError = useErrorHandler();
-
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [noOfPages, setNoOfPages] = useState(0);
+  const [appointmentsList, setAppointmentList] = useState<Appointment[]>([]);
+  const [totalRecords, setTotalRecords] = useState(0);
+  const startIndex = (currentPage - 1) * rowsPerPage + 1;
+  const endIndex = appointmentsList?.length + startIndex - 1;
+  const [isFetching, setIsFetching] = useState<boolean>(false);
+  const [selectedAppointmentId, setSelectedAppointmentId] = useState<string>();
+  const [isPastDetailsFetching, setIsPastDetailsFetching] =
+    useState<boolean>(false);
+  const [pastAppointmentDetails, setPastAppointmentDetails] =
+    useState<Appointment>();
+  const [showPastAppointmentDialog, setShowPastAppointmentDialog] =
+    useState<boolean>(false);
   const fetchAppointmentDetails = async () => {
     try {
       setFetchingDetails(true);
-      const res = await getAppointmentDetails(id!);
-      setAppointmentDetails(res.data.data);
+      const response = await getAppointmentDetails(id!);
+      const data = response.data.data;
+      setAppointmentDetails(data);
     } catch (error) {
       handleError(error, "Error in fetching appointment details");
     } finally {
       setFetchingDetails(false);
+    }
+  };
+
+  const fetchPastAppointmentDetails = async () => {
+    try {
+      setIsPastDetailsFetching(true);
+      const res = await getAppointmentDetails(selectedAppointmentId!);
+      setPastAppointmentDetails(res.data.data);
+    } catch (error) {
+      handleError(error, "Error in fetching appointment details");
+    } finally {
+      setIsPastDetailsFetching(false);
     }
   };
 
@@ -206,6 +265,43 @@ const AppointmentDetails = () => {
       setFetchingMedicines(false);
     }
   };
+
+  const fetchAppointmentList = async () => {
+    try {
+      setIsFetching(true);
+      const queryParams: Record<string, string> = {
+        page: currentPage.toString(),
+        limit: rowsPerPage.toString(),
+      };
+      if (appointmentDetails) {
+        queryParams["patientId"] = appointmentDetails.patient.id;
+        queryParams["currentAppointmentId"] = appointmentDetails.id;
+      }
+
+      const response = await getAppointmentList(queryParams);
+      const data = response.data.data.appointmentList;
+      const totalRecords = response.data.data.meta.totalMatchingRecords;
+      setTotalRecords(totalRecords);
+      setNoOfPages(Math.ceil(totalRecords / rowsPerPage));
+      setAppointmentList(data);
+    } catch (error) {
+      handleError(error, "Failed to fetch appointment list");
+    } finally {
+      setIsFetching(false);
+    }
+  };
+
+  useEffect(() => {
+    if (appointmentDetails && appointmentDetails.patient) {
+      fetchAppointmentList();
+    }
+  }, [appointmentDetails, currentPage, rowsPerPage]);
+
+  useEffect(() => {
+    if (selectedAppointmentId) {
+      fetchPastAppointmentDetails();
+    }
+  }, [selectedAppointmentId]);
 
   const handleSubmitVitals = async () => {
     try {
@@ -379,7 +475,7 @@ const AppointmentDetails = () => {
     content: () => printRef.current,
     documentTitle: `PRESCRIPTION_${appointmentDetails?.patient.name}_${format(
       new Date(),
-      "dd-MMM-yyyy"
+      "dd-MMM-yyyy",
     )}`,
   });
 
@@ -482,7 +578,7 @@ const AppointmentDetails = () => {
                     <p className="font-medium">
                       {new Date().getFullYear() -
                         new Date(
-                          appointmentDetails?.patient.dateOfBirth
+                          appointmentDetails?.patient.dateOfBirth,
                         ).getFullYear()}{" "}
                       Yrs
                     </p>
@@ -516,7 +612,7 @@ const AppointmentDetails = () => {
                             window.open(
                               doc.signedUrl as string,
                               "_blank",
-                              "noopener,noreferrer"
+                              "noopener,noreferrer",
                             )
                           }
                           className="cursor-pointer w-fit"
@@ -543,7 +639,7 @@ const AppointmentDetails = () => {
                               onClick={() => {}}
                               value={Number(
                                 appointmentDetails?.appointmentFeedbacks
-                                  .overallSatisfaction
+                                  .overallSatisfaction,
                               )}
                               disable={true}
                             />
@@ -566,6 +662,204 @@ const AppointmentDetails = () => {
                   </>
                 )}
               </CardContent>
+            </Card>
+            {/* Patients past appointment list */}
+            <Card>
+              <CardHeader className="relative">
+                <CardTitle>Patients Past Appointments</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="table-header flex items-center w-full mb-2 mt-0">
+                  <div className="flex gap-2 flex-wrap md:flex-nowrap"></div>
+                  {isFetching && (
+                    <div className="flex gap-1 ml-10 items-start text-muted-foreground ">
+                      <Spinner />
+                      Looking for appointments...
+                    </div>
+                  )}
+                </div>
+                <Table className={isFetching ? "pointer-events-none" : ""}>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Patient</TableHead>
+                      <TableHead>Doctor</TableHead>
+                      <TableHead>Token No</TableHead>
+                      <TableHead className="hidden md:table-cell">
+                        Date & Time
+                      </TableHead>
+                      <TableHead className="hidden md:table-cell">
+                        Status
+                      </TableHead>
+                      <TableHead className="hidden md:table-cell">
+                        Actions
+                      </TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  {appointmentsList.length === 0 ? (
+                    <TableBody>
+                      <TableCell
+                        colSpan={6}
+                        className="font-medium text-muted-foreground mt-4 text-center"
+                      >
+                        No Appointments found...
+                      </TableCell>
+                    </TableBody>
+                  ) : (
+                    <TableBody>
+                      {appointmentsList?.map((appointment: Appointment) => (
+                        <TableRow
+                          key={appointment.id}
+                          onClick={() => {
+                            setShowPastAppointmentDialog(true);
+                            setSelectedAppointmentId(appointment.id);
+                          }}
+                          className="cursor-pointer"
+                        >
+                          <TableCell className="font-medium">
+                            <div className="font-medium">
+                              {appointment.patient.name}
+                            </div>
+                            <div className="hidden text-sm text-muted-foreground md:inline">
+                              {appointment.patient.phoneNumber}
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div className="font-medium">
+                              {appointment.doctor.name}
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div className="font-medium">
+                              {appointment.tokenNumber}
+                            </div>
+                          </TableCell>
+                          <TableCell className="hidden md:table-cell">
+                            {`${format(
+                              appointment.appointmentDate,
+                              "dd-MM-yyyy",
+                            )}, ${appointment.doctorSlots.slot.startTime}`}
+                          </TableCell>
+                          <TableCell className="capitalize">
+                            <p
+                              className={`badge ${
+                                statusClasses[appointment.appointmentStatus]
+                              } px-2 py-1 rounded-lg text-xs w-[90px] text-center capitalize self-start`}
+                            >
+                              {appointment.appointmentStatus.toLowerCase()}
+                            </p>
+                          </TableCell>
+                          <TableCell className="hidden md:table-cell">
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button
+                                  size="icon"
+                                  variant="outline"
+                                  className="h-8 w-8"
+                                >
+                                  <MoreVertical className="h-4 w-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuItem
+                                  onClick={() => {
+                                    setShowPastAppointmentDialog(true);
+                                    // navigate(
+                                    //   `${APP_ROUTES.APPOINTMENT_DETAILS}/${appointment.id}`,
+                                    // );
+                                  }}
+                                >
+                                  <Eye className="mr-2 h-4 w-4" />
+                                  View
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  )}
+                </Table>
+              </CardContent>
+              <CardFooter className="flex-wrap gap-4">
+                <Pagination className="w-fit">
+                  <PaginationContent className="flex-wrap gap-2 items-center">
+                    <PaginationItem className="flex gap-2 items-center">
+                      <p className="text-sm">Rows per page:</p>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="h-7 gap-1"
+                          >
+                            {rowsPerPage}
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => setRowsPerPage(5)}>
+                            5
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </PaginationItem>
+                    <PaginationItem className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={() =>
+                          setCurrentPage((prev) => (prev > 1 ? prev - 1 : 1))
+                        }
+                      >
+                        <ChevronLeft className="h-3 w-3" />{" "}
+                      </Button>
+                      <div className="flex gap-4 items-center">
+                        <Input
+                          value={currentPage}
+                          type="text"
+                          inputMode="numeric"
+                          pattern="\d*"
+                          className="w-8 text-center px-1 h-7"
+                          onChange={(e) => {
+                            const value = Number(e.target.value);
+                            if (
+                              isNaN(value) ||
+                              value < 1 ||
+                              value > noOfPages
+                            ) {
+                              setCurrentPage(1);
+                            } else {
+                              setCurrentPage(value);
+                            }
+                          }}
+                        />
+                        <p>of {noOfPages} pages</p>
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={() =>
+                          setCurrentPage((prev) =>
+                            prev === noOfPages ? noOfPages : prev + 1,
+                          )
+                        }
+                      >
+                        <ChevronRight className="h-3 w-3" />
+                      </Button>
+                    </PaginationItem>
+                  </PaginationContent>
+                </Pagination>
+                <div className="text-xs text-muted-foreground">
+                  {
+                    <div className="text-xs text-muted-foreground">
+                      Showing{" "}
+                      <strong>
+                        {startIndex}-{endIndex}
+                      </strong>{" "}
+                      of <strong>{totalRecords}</strong> appointments
+                    </div>
+                  }
+                </div>
+              </CardFooter>
             </Card>
             {/* patient vitals */}
             <Card
@@ -813,7 +1107,7 @@ const AppointmentDetails = () => {
                                       </p>
                                     </div>
                                   </div>
-                                )
+                                ),
                               )
                             ) : (
                               <span className="text-muted-foreground">
@@ -839,7 +1133,7 @@ const AppointmentDetails = () => {
                                 <div className="flex gap-2 items-center relative">
                                   <div className="flex gap-2 items-center border p-2 rounded-md flex-wrap">
                                     <div className="flex justify-between items-center gap-2">
-                                      <p className="font-medium text-sm">
+                                      <p className="font-extrabold text-sm">
                                         Medicine:
                                       </p>
                                       <p>
@@ -851,13 +1145,13 @@ const AppointmentDetails = () => {
                                       </p>
                                     </div>
                                     <div className="flex justify-between items-center gap-2">
-                                      <p className="font-medium text-sm">
+                                      <p className="font-extrabold text-sm">
                                         Duration:
                                       </p>
                                       <p>{pres.durationInDays} days</p>
                                     </div>
                                     <div className="flex justify-between items-center gap-2">
-                                      <p className="font-medium text-sm">
+                                      <p className="font-extrabold text-sm">
                                         Time:
                                       </p>
                                       <p className="capitalize">
@@ -867,7 +1161,7 @@ const AppointmentDetails = () => {
                                       </p>
                                     </div>
                                     <div className="flex justify-between items-center gap-2">
-                                      <p className="font-medium text-sm">
+                                      <p className="font-extrabold text-sm">
                                         Food Relation:
                                       </p>
                                       <p>
@@ -877,7 +1171,7 @@ const AppointmentDetails = () => {
                                       </p>
                                     </div>
                                     <div className="flex justify-between items-center gap-2">
-                                      <p className="font-medium text-sm">
+                                      <p className="font-extrabold text-sm">
                                         Prescription Remarks:
                                       </p>
                                       <p>
@@ -894,8 +1188,8 @@ const AppointmentDetails = () => {
                                         prev.filter(
                                           (i) =>
                                             i.medicationStockId !==
-                                            pres.medicationStockId
-                                        )
+                                            pres.medicationStockId,
+                                        ),
                                       )
                                     }
                                   >
@@ -1072,7 +1366,7 @@ const AppointmentDetails = () => {
                                 disabled={
                                   prescription?.findIndex(
                                     (item) =>
-                                      item.medicationStockId === medicine.id
+                                      item.medicationStockId === medicine.id,
                                   ) !== -1
                                 }
                                 className="gap-2 cursor-pointer"
@@ -1096,14 +1390,14 @@ const AppointmentDetails = () => {
                                 {(selectedMedicine?.id === medicine.id ||
                                   prescription?.findIndex(
                                     (item) =>
-                                      item.medicationStockId === medicine.id
+                                      item.medicationStockId === medicine.id,
                                   ) !== -1) && (
                                   <CheckIcon
                                     className={cn("ml-auto h-4 w-4")}
                                   />
                                 )}
                               </CommandItem>
-                            )
+                            ),
                           )}
                         </CommandGroup>
                       </ScrollArea>
@@ -1157,7 +1451,7 @@ const AppointmentDetails = () => {
                     <DropdownMenuCheckboxItem
                       key={time.value}
                       checked={tempPrescription?.timeOfDay?.includes(
-                        time.value
+                        time.value,
                       )}
                       className="cursor-pointer"
                       onCheckedChange={(isChecked: boolean) => {
@@ -1166,7 +1460,7 @@ const AppointmentDetails = () => {
                           timeOfDay: isChecked
                             ? [...prev.timeOfDay, time.value]
                             : prev.timeOfDay.filter(
-                                (val) => val !== time.value
+                                (val) => val !== time.value,
                               ),
                         }));
                       }}
@@ -1232,6 +1526,382 @@ const AppointmentDetails = () => {
               }}
             >
               Save changes
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      <Dialog
+        open={showPastAppointmentDialog}
+        onOpenChange={setShowPastAppointmentDialog}
+      >
+        <DialogContent
+          className="max-h-[600px] max-w-[360px] md:max-w-[1000px] rounded-lg overflow-scroll"
+          ref={dialogRef}
+        >
+          <DialogHeader>
+            <DialogTitle>Appointment details</DialogTitle>
+            <DialogDescription>
+              Appointment details of the patient
+            </DialogDescription>
+          </DialogHeader>
+          {isPastDetailsFetching ? (
+            <CommandLoading>
+              <div className="flex gap-2 items-center justify-center mt-4">
+                <Spinner />
+                <span className="text-muted-foreground">
+                  Fetching appointment details...
+                </span>
+              </div>
+            </CommandLoading>
+          ) : (
+            <>
+              {pastAppointmentDetails ? (
+                <>
+                  <div className="flex justify-between items-center mb-0">
+                    <p className="font-semibold">
+                      Token No : {pastAppointmentDetails?.tokenNumber || "NA"}
+                    </p>
+                    {pastAppointmentDetails?.appointmentStatus && (
+                      <div
+                        className={`badge ${
+                          statusClasses[
+                            pastAppointmentDetails?.appointmentStatus
+                          ]
+                        } px-2 py-1 rounded-lg text-xs font-medium w-[90px] text-center capitalize`}
+                      >
+                        {pastAppointmentDetails?.appointmentStatus.toLowerCase()}
+                      </div>
+                    )}
+                  </div>
+                  <Card
+                    x-chunk="appointment-details-patient-details-chunk"
+                    className="h-fit"
+                  >
+                    <CardHeader className="relative">
+                      <CardTitle>Patient Reports</CardTitle>
+                    </CardHeader>
+                    <CardContent className="min-w-[300px]">
+                      <div className="flex flex-col justify-between w-full gap-2 mb-2">
+                        {/* <CardTitle>Patient Reports</CardTitle> */}
+                        <div className="flex items-center gap-2 mt-2 flex-wrap">
+                          {pastAppointmentDetails?.patientAppointmentDocs
+                            .length === 0 && (
+                            <p className="text-sm">No Records Available</p>
+                          )}
+                          {pastAppointmentDetails?.patientAppointmentDocs.map(
+                            (doc) => (
+                              <div key={doc.id as string} className="">
+                                <Badge
+                                  variant={"secondary"}
+                                  onClick={() =>
+                                    window.open(
+                                      doc.signedUrl as string,
+                                      "_blank",
+                                      "noopener,noreferrer",
+                                    )
+                                  }
+                                  className="cursor-pointer w-fit"
+                                >
+                                  {`${
+                                    (
+                                      doc.documentTypes as Record<
+                                        string,
+                                        string
+                                      >
+                                    ).name
+                                  }.${doc.fileExtension}`}
+                                </Badge>
+                              </div>
+                            ),
+                          )}
+                        </div>
+                      </div>
+                      {pastAppointmentDetails?.isFeedbackProvided && (
+                        <>
+                          <div className="border-t-2 border-solid border-primary/10 my-4" />
+                          <div className="flex flex-col justify-between w-full gap-2 mb-2 mt-4">
+                            <CardTitle>Feedback</CardTitle>
+                            <div className="flex gap-4 flex-wrap mb-2">
+                              <div className="flex  gap-2 w-fit">
+                                <p className="text-muted-foreground">
+                                  Rating:{" "}
+                                </p>
+                                <p className="font-medium">
+                                  <StarRating
+                                    totalStars={5}
+                                    onClick={() => {}}
+                                    value={Number(
+                                      pastAppointmentDetails
+                                        ?.appointmentFeedbacks
+                                        .overallSatisfaction,
+                                    )}
+                                    disable={true}
+                                  />
+                                </p>
+                              </div>
+                              {!!pastAppointmentDetails.appointmentFeedbacks
+                                .feedBackRemarks && (
+                                <div className="flex  gap-2 ">
+                                  <p className="text-muted-foreground">
+                                    Remarks:{" "}
+                                  </p>
+                                  <p className="font-medium">
+                                    {
+                                      pastAppointmentDetails
+                                        .appointmentFeedbacks.feedBackRemarks
+                                    }
+                                  </p>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </>
+                      )}
+                    </CardContent>
+                  </Card>
+                  <Card
+                    x-chunk="appointment-details-patient-details-chunk"
+                    className="h-fit"
+                  >
+                    <CardHeader className="relative">
+                      <CardTitle>Patient Vitals</CardTitle>
+                    </CardHeader>
+                    <CardContent className="min-w-[300px]">
+                      {/* Fever level, Blood pressure, pulse(bpm), weight, other remarks */}
+                      <div className="grid md:grid-flow-col w-full gap-2 mb-2">
+                        <div className="flex gap-2 flex-col justify-between">
+                          <Label>
+                            Fever Level
+                            <span className="text-normal ml-[4px] text-sm text-muted-foreground">
+                              (°F)
+                            </span>
+                            :
+                          </Label>
+                          <Input
+                            disabled={true}
+                            value={pastAppointmentDetails?.feverLevel}
+                            placeholder="Enter Fever level"
+                          />
+                        </div>
+                        <div className="flex gap-2 justify-between flex-col">
+                          <Label>
+                            Blood Pressure{" "}
+                            <span className="text-normal ml-[4px] text-sm text-muted-foreground">
+                              (mmHg)
+                            </span>
+                            :
+                          </Label>
+                          <Input
+                            disabled={true}
+                            value={pastAppointmentDetails?.bloodPreassure}
+                            placeholder="Enter Blood Pressure"
+                          />
+                        </div>
+                        <div className="flex gap-2 justify-between flex-col">
+                          <Label>
+                            Pulse{" "}
+                            <span className="text-normal ml-[4px] text-sm text-muted-foreground">
+                              (BPM)
+                            </span>
+                            :{" "}
+                          </Label>
+                          <Input
+                            disabled={true}
+                            placeholder="Enter Pulse"
+                            value={pastAppointmentDetails?.pulse}
+                          />
+                        </div>
+                        <div className="flex gap-2 justify-between flex-col">
+                          <Label>
+                            Weight{" "}
+                            <span className="text-normal ml-[4px] text-sm text-muted-foreground">
+                              (Kgs)
+                            </span>
+                            :{" "}
+                          </Label>
+                          <Input
+                            disabled={true}
+                            value={pastAppointmentDetails?.patientWeight}
+                            placeholder="Enter Weight"
+                          />
+                        </div>
+                      </div>
+                      <div className="flex gap-2 justify-between flex-col mt-4">
+                        <Label>Other Remarks:</Label>
+                        <Textarea
+                          disabled={true}
+                          maxLength={50}
+                          value={pastAppointmentDetails?.otherVitalRemarks}
+                          placeholder="Enter Other Remarks"
+                        />
+                      </div>
+                    </CardContent>
+                  </Card>
+                  <Card
+                    x-chunk="appointment-details-patient-details-chunk"
+                    className="h-fit"
+                  >
+                    <CardHeader className="relative">
+                      <CardTitle>Doctor Details</CardTitle>
+                    </CardHeader>
+                    <CardContent className="min-w-[300px]">
+                      <div className="grid md:grid-flow-col w-full gap-4 mb-2">
+                        <div className="flex justify-between flex-col">
+                          <p className="text-muted-foreground">Name: </p>
+                          <p className="font-medium">
+                            {pastAppointmentDetails?.doctor.name}
+                          </p>
+                        </div>
+                        <div className="flex justify-between flex-col">
+                          <p className="text-muted-foreground">Speciality: </p>
+                          <p className="font-medium">
+                            {pastAppointmentDetails?.doctor.speciality}
+                          </p>
+                        </div>
+                        <div className="flex justify-between flex-col">
+                          <p className="text-muted-foreground">
+                            Appointment Date:{" "}
+                          </p>
+                          <p className="font-medium">
+                            {pastAppointmentDetails?.appointmentDate &&
+                              format(
+                                pastAppointmentDetails?.appointmentDate,
+                                "PP",
+                              )}
+                          </p>
+                        </div>
+                        <div className="flex justify-between flex-col">
+                          <p className="text-muted-foreground">From: </p>
+                          <p className="font-medium">
+                            {pastAppointmentDetails?.doctorSlots.slot.startTime}
+                          </p>
+                        </div>
+                        <div className="flex justify-between flex-col">
+                          <p className="text-muted-foreground">To: </p>
+                          <p className="font-medium">
+                            {pastAppointmentDetails?.doctorSlots.slot.endTime}
+                          </p>
+                        </div>
+                      </div>
+                      {/* @ts-expect-error-free */}
+                      {pastAppointmentDetails.appointmentStatus !==
+                        "CANCELLED" && (
+                        <>
+                          {pastAppointmentDetails?.appointmentStatus ===
+                            "COMPLETED" && (
+                            <>
+                              <div className="border-t-2 border-solid border-primary/10 my-4" />
+                              <div className="flex flex-col justify-between w-full gap-2 mb-2 mt-2">
+                                <CardTitle>Prescription </CardTitle>
+                                <div className="flex flex-col gap-2 mt-2">
+                                  {/* add prescription cta */}
+
+                                  {pastAppointmentDetails.patientPrescription
+                                    ?.length !== 0 ? (
+                                    pastAppointmentDetails.patientPrescription &&
+                                    pastAppointmentDetails?.patientPrescription.map(
+                                      (pres) => (
+                                        <div className="flex gap-2 items-center border p-2 rounded-md flex-wrap">
+                                          <div className="flex justify-between items-center gap-2">
+                                            <p className="text-sm font-extrabold">
+                                              Medicine:
+                                            </p>
+                                            <p>
+                                              {
+                                                pres.medicationStock
+                                                  ?.medicationName
+                                              }
+                                            </p>
+                                          </div>
+                                          <div className="flex justify-between items-center gap-2">
+                                            <p className="font-extrabold text-sm">
+                                              Duration:
+                                            </p>
+                                            <p>{pres.durationInDays} days</p>
+                                          </div>
+                                          <div className="flex justify-between items-center gap-2">
+                                            <p className="font-extrabold text-sm">
+                                              Time:
+                                            </p>
+                                            <p className="capitalize">
+                                              {pres.timeOfDay
+                                                .map((i) => i.toLowerCase())
+                                                .join(", ")}
+                                            </p>
+                                          </div>
+                                          <div className="flex justify-between items-center gap-2">
+                                            <p className="font-extrabold text-sm">
+                                              Food Relation:
+                                            </p>
+                                            <p>
+                                              {pres.foodRelation ===
+                                              "BEFORE_MEAL"
+                                                ? "Before Meal"
+                                                : "After Meal"}
+                                            </p>
+                                          </div>
+                                          <div className="flex justify-between items-center gap-2">
+                                            <p className="font-extrabold text-sm">
+                                              Prescription Remarks:
+                                            </p>
+                                            <p>
+                                              {pres.prescriptionRemarks ||
+                                                "None"}
+                                            </p>
+                                          </div>
+                                        </div>
+                                      ),
+                                    )
+                                  ) : (
+                                    <span className="text-muted-foreground">
+                                      {" "}
+                                      No Prescription Available
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                              <div className="border-t-2 border-solid border-primary/10 my-4" />
+                            </>
+                          )}
+                        </>
+                      )}
+                      {pastAppointmentDetails?.appointmentStatus ===
+                        "COMPLETED" && (
+                        <div className="flex flex-col gap-2">
+                          <Label htmlFor="doctorRemarks">Doctor Remarks</Label>
+                          <p className="font-normal">
+                            {pastAppointmentDetails?.doctorRemarks || (
+                              <span className="text-muted-foreground">
+                                No remarks given by doctor
+                              </span>
+                            )}
+                          </p>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                </>
+              ) : (
+                <CommandLoading>
+                  <div className="flex gap-2 items-center justify-center mt-4">
+                    <Spinner />
+                    <span className="text-muted-foreground">
+                      Cannot fetch the details.Please try again.
+                    </span>
+                  </div>
+                </CommandLoading>
+              )}
+            </>
+          )}
+
+          <DialogFooter>
+            <Button
+              onClick={() => {
+                setShowPastAppointmentDialog(false);
+                setPastAppointmentDetails(undefined);
+              }}
+            >
+              Close
             </Button>
           </DialogFooter>
         </DialogContent>
