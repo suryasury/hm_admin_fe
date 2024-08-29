@@ -5,9 +5,8 @@ import React from "react";
 const PrintPrescription = React.forwardRef(
   (
     { appointmentDetails }: { appointmentDetails: Appointment },
-    ref: React.Ref<HTMLDivElement>
+    ref: React.Ref<HTMLDivElement>,
   ) => {
-    console.log(appointmentDetails);
     const getCombinedAddress = (details: Record<string, string>) => {
       const addressParts = [
         details.houseNumber,
@@ -32,10 +31,9 @@ const PrintPrescription = React.forwardRef(
             PH:{" "}
             {`${appointmentDetails?.hospital?.isd_code} ${appointmentDetails?.hospital?.phoneNumber}`}
           </p>
-          <h2 className="font-bold mt-4">Out Patient Prescription Form</h2>
+          <h2 className="font-bold mt-1">Out Patient Prescription Form</h2>
         </div>
-
-        <div className="mt-6">
+        <div className="mt-3">
           <div className="flex justify-between">
             <div className="space-y-1">
               <p>
@@ -49,12 +47,24 @@ const PrintPrescription = React.forwardRef(
                 <span className="font-bold">{`${
                   new Date().getFullYear() -
                   new Date(
-                    appointmentDetails?.patient.dateOfBirth
+                    appointmentDetails?.patient.dateOfBirth,
                   ).getFullYear()
-                }/ ${appointmentDetails?.patient?.gender}`}</span>
+                } / ${appointmentDetails?.patient?.gender}`}</span>
               </p>
               <p>
-                Token:{" "}
+                Email:{" "}
+                <span className="font-bold">
+                  {appointmentDetails?.patient.email}
+                </span>
+              </p>
+              <p>
+                Phone:{" "}
+                <span className="font-bold">
+                  {appointmentDetails?.patient.phoneNumber}
+                </span>
+              </p>
+              <p>
+                Token No:{" "}
                 <span className="font-bold">
                   {appointmentDetails?.tokenNumber}
                 </span>
@@ -68,21 +78,53 @@ const PrintPrescription = React.forwardRef(
                 </span>
               </p>
               <p>
+                Time:{" "}
+                <span className="font-bold">
+                  {appointmentDetails?.doctorSlots.slot.startTime}
+                </span>
+              </p>
+              <p>
                 Doctor:{" "}
-                <span className="font-bold uppercase">
-                  {appointmentDetails?.doctor?.name}
+                <span className="font-bold">
+                  Dr. {appointmentDetails?.doctor.name || "NA"}
                 </span>
               </p>
               <p>
                 Speciality:{" "}
+                <span className="font-bold uppercase">
+                  {appointmentDetails?.doctor.speciality || "NA"}
+                </span>
+              </p>
+            </div>
+            <div className="space-y-1">
+              <p>
+                Fever(°F):{" "}
+                <span className="font-bold uppercase">
+                  {appointmentDetails?.feverLevel || "NA"}
+                </span>
+              </p>
+              <p>
+                BP(mmHg):{" "}
                 <span className="font-bold">
-                  {appointmentDetails?.doctor?.speciality}
+                  {appointmentDetails?.bloodPreassure || "NA"}
+                </span>
+              </p>
+              <p>
+                Pulse(BPM):{" "}
+                <span className="font-bold">
+                  {appointmentDetails?.pulse || "NA"}
+                </span>
+              </p>
+              <p>
+                weight(Kgs):{" "}
+                <span className="font-bold uppercase">
+                  {appointmentDetails?.patientWeight || "NA"}
                 </span>
               </p>
             </div>
           </div>
 
-          <table className="w-full mt-6 border border-gray-600">
+          <table className="w-full mt-3 border border-gray-600">
             <thead>
               <tr className="bg-gray-200">
                 <th className="border border-gray-600 p-2 text-left">S/No</th>
@@ -93,7 +135,9 @@ const PrintPrescription = React.forwardRef(
                 <th className="border border-gray-600 p-2 text-left">
                   Frequency
                 </th>
-                <th className="border border-gray-600 p-2 text-left">Qty</th>
+                <th className="border border-gray-600 p-2 text-left">
+                  Food Relation
+                </th>
                 <th className="border border-gray-600 p-2 text-left">Notes</th>
               </tr>
             </thead>
@@ -114,23 +158,30 @@ const PrintPrescription = React.forwardRef(
                       <td className="border border-gray-600 p-2">
                         {prescription?.timeOfDay.join(", ")}
                       </td>
-                      <td className="border border-gray-600 p-2">1</td>
+                      <td className="border border-gray-600 p-2">
+                        {prescription.foodRelation}
+                      </td>
                       <td className="border border-gray-600 p-2">
                         {prescription?.prescriptionRemarks}
                       </td>
                     </tr>
-                  )
+                  ),
                 )}
             </tbody>
           </table>
-
+          <div className="mt-3">
+            <p>
+              <span className="font-extrabold">Doctor Remarks:</span>{" "}
+              {appointmentDetails?.doctorRemarks || "NA"}
+            </p>
+          </div>
           <div className="mt-4">
             <p className="text-center">** End Of Prescription **</p>
           </div>
         </div>
       </div>
     );
-  }
+  },
 );
 
 export default PrintPrescription;
