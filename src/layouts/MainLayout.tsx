@@ -68,6 +68,7 @@ const DashboardLayout = () => {
     [APP_ROUTES.CREATE_DOCTOR]: "Create Doctor",
     [APP_ROUTES.PROFILE]: "Profile",
     [APP_ROUTES.APPOINTMENT_DETAILS + `/${id}`]: "Appointment Details",
+    [APP_ROUTES.ADD_APPOINTMENT] : "Add Appointment",
   } as const;
 
   const navItems = generateNavItems(user?.role ?? "admin");

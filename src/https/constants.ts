@@ -2,7 +2,7 @@ export const API_END_POINTS = {
   LOGIN: "admin/login",
   PROFILE_DETAILS: "admin/details",
   UPDATE_PROFILE: "admin/hospital/user/profile/update",
-  DELETE_USER:"admin/user",
+  DELETE_USER: "admin/user",
 
   ADMIN_LIST: "admin/hospital/admin/list",
   ADMIN_DETAILS: "admin/hospital/admin/details",
@@ -35,6 +35,10 @@ export const API_END_POINTS = {
   APPOINTMENT_UPDATE: "admin/hospital/appointment/update/status",
   UPDATE_VItALS: "admin/hospital/appointment/update/vitals",
   DOCTOR_MINIFIED_LISt: "admin/hospital/doctor/minified/list",
+  REPORT_TYPE_LIST: "admin/hospital/documenttype/list",
+  UPLOAD_REPORT: "common/customer/upload/records",
+  TIME_SLOTS:"admin/hospital/slots",
+  CREATE_APPOINTMENT:"admin/hospital/appointment/create",
 
   PATIENTS_LIST: "admin/hospital/patients/list",
   PATIENT_DETAILS: "admin/patient/details",

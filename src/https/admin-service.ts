@@ -1,5 +1,6 @@
 import {
   Ailment,
+  IAppointmentForm,
   IAppointmentUpdate,
   ICreateDoctor,
   ICreateMedicationForm,
@@ -66,7 +67,7 @@ export const getAppointmentList = async (
 };
 
 export const getDoctorMinifiedList = async (
-  queryParams: Record<string, string>
+  queryParams?: Record<string, string>
 ) => {
   return api.get(API_END_POINTS.DOCTOR_MINIFIED_LISt, { params: queryParams });
 };
@@ -86,7 +87,7 @@ export const updateVitals = async (
   return api.patch(API_END_POINTS.UPDATE_VItALS + `/${id}`, payload);
 };
 
-export const getPatientList = async (queryParams: Record<string, string>) => {
+export const getPatientList = async (queryParams?: Record<string, string>) => {
   return api.get(API_END_POINTS.PATIENTS_LIST, { params: queryParams });
 };
 
@@ -143,6 +144,21 @@ export const getWeekdaysList = async () => {
 
 export const getDoctorSlots = async (queryParams: Record<string, string>) => {
   return api.get(API_END_POINTS.DOCTOR_SLOTS, { params: queryParams });
+};
+
+export const uploadReports = async (data: FormData, patientId: string) => {
+  return api.post(API_END_POINTS.UPLOAD_REPORT + `/${patientId}`, data);
+};
+
+export const getTimeSlots = (weekDayId: string, doctorId: string) => {
+  return api.get(API_END_POINTS.TIME_SLOTS + `/${doctorId}/${weekDayId}`);
+};
+
+export const createAppointment = (payload: IAppointmentForm) => {
+  return api.post(API_END_POINTS.CREATE_APPOINTMENT, payload);
+};
+export const getReportTypeList = async () => {
+  return api.get(API_END_POINTS.REPORT_TYPE_LIST);
 };
 
 export const getDoctorDetails = async (id: string) => {

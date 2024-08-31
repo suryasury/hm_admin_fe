@@ -22,6 +22,7 @@ export const APP_ROUTES = {
 
   APPOINTMENT_LIST: "/admin/appointment-list",
   APPOINTMENT_DETAILS: "/admin/appointments/details",
+  ADD_APPOINTMENT: "/admin/appointments/add",
 
   MEDICATION: "/admin/medications",
   AILMENTS: "/admin/ailments",

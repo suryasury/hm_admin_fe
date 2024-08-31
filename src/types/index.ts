@@ -141,7 +141,7 @@ export interface Appointment {
     isd_code: string;
     bloodGroup: string;
     dateOfBirth: string;
-    gender:string
+    gender: string;
   };
   ailment: Ailment;
   doctorSlots: DoctorSlots;
@@ -157,14 +157,14 @@ export interface Appointment {
   pulse: string;
   patientWeight: string;
   otherVitalRemarks: string;
-  tokenNumber:string;
-  hospital:{
-    name:string;
-    address:string;
-    phoneNumber:string;
-    isd_code:string;
-    pincode:string;
-  }
+  tokenNumber: string;
+  hospital: {
+    name: string;
+    address: string;
+    phoneNumber: string;
+    isd_code: string;
+    pincode: string;
+  };
 }
 
 // app types
@@ -212,12 +212,12 @@ export interface Feedbacks {
 }
 
 export interface IAppointmentForm {
-  doctorId: string;
-  doctorSlotId: string;
-  hospitalId: string;
-  remarks: string;
-  ailmentId: string;
-  appointmentDate: string;
+  doctorId?: string;
+  doctorSlotId?: string;
+  patientId?: string;
+  remarks?: string;
+  ailmentId?: string;
+  appointmentDate?: string;
   documents?: IMedicalReport[];
 }
 
@@ -498,7 +498,6 @@ export interface IUpdateDoctor {
     pincode?: string;
     signedUrl?: string;
     qualification?: string;
-
   };
   slotDetails?: ISlotDetails[];
   removedSlotIds?: string[];

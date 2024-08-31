@@ -75,6 +75,7 @@ import {
   Eye,
   Hourglass,
   MoreVertical,
+  Plus,
   Search,
   X,
 } from "lucide-react";
@@ -252,157 +253,169 @@ const AppointmentsPage = () => {
       <Card x-chunk="dashboard-06-chunk-0">
         <CardContent>
           <div className="table-header flex items-center w-full mb-2 mt-4">
-            <div className="flex gap-2 flex-wrap md:flex-nowrap">
-              <div className="relative flex-1">
-                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                <Input
-                  onChange={handleSearch}
-                  type="search"
-                  placeholder="Search..."
-                  className="w-full rounded-lg bg-background pl-8 md:w-[200px] lg:w-[320px]"
+            <div className="flex justify-between w-full flex-wrap gap-2 items-center">
+              <div className="flex gap-2  flex-wrap md:flex-nowrap">
+                <div className="relative flex-1">
+                  <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    onChange={handleSearch}
+                    type="search"
+                    placeholder="Search..."
+                    className="w-full rounded-lg bg-background pl-8 md:w-[200px] lg:w-[320px]"
+                  />
+                </div>
+                <DatePicker
+                  date={date}
+                  setDate={setDate}
+                  placeholder="Filter by date"
                 />
-              </div>
-              <DatePicker
-                date={date}
-                setDate={setDate}
-                placeholder="Filter by date"
-              />
-              <div className="flex justify-between  gap-1 w-full">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild className="w-full">
-                    <Button
-                      variant="outline"
-                      className="text-muted-foreground text-sm font-normal "
-                    >
-                      {appointmentStatus !== "" ? (
-                        <p className="flex items-center">
-                          {statusToText[appointmentStatus].icon}
-                          {statusToText[appointmentStatus].text}
-                        </p>
-                      ) : (
-                        "Filter by status"
-                      )}
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent>
-                    <DropdownMenuItem
-                      className="cursor-pointer"
-                      onClick={() => setAppointmentStatus("SCHEDULED")}
-                    >
-                      <Hourglass className="mr-2 h-4 w-4" />
-                      Scheduled
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      className="cursor-pointer"
-                      onClick={() => setAppointmentStatus("APPROVED")}
-                    >
-                      <CheckCircle className="mr-2 h-4 w-4" />
-                      Approved
-                    </DropdownMenuItem>
-
-                    <DropdownMenuItem
-                      className="cursor-pointer"
-                      onClick={() => setAppointmentStatus("COMPLETED")}
-                    >
-                      <CheckCircle2 className="mr-2 h-4 w-4" /> Completed
-                    </DropdownMenuItem>
-
-                    <DropdownMenuItem
-                      onClick={() => setAppointmentStatus("CANCELLED")}
-                      className="cursor-pointer"
-                    >
-                      <X className="mr-2 h-4 w-4" />
-                      Cancelled
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem
-                      className="cursor-pointer"
-                      onClick={() => setAppointmentStatus("")}
-                    >
-                      Clear Filter
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-                {user && user.role !== "DOCTOR" && (
-                  <Popover
-                    open={showDoctorList}
-                    onOpenChange={setShowDoctorList}
-                  >
-                    <PopoverTrigger asChild>
+                <div className="flex justify-between  gap-1 w-full">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild className="w-full">
                       <Button
                         variant="outline"
-                        role="combobox"
-                        className="justify-between text-muted-foreground font-normal"
-                        onClick={() => {
-                          setShowDoctorList(true);
-                          fetchDoctorList();
-                        }}
+                        className="text-muted-foreground text-sm font-normal "
                       >
-                        {selectedDoctor?.name
-                          ? selectedDoctor?.name
-                          : " Filter by doctor"}
-                        <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        {appointmentStatus !== "" ? (
+                          <p className="flex items-center">
+                            {statusToText[appointmentStatus].icon}
+                            {statusToText[appointmentStatus].text}
+                          </p>
+                        ) : (
+                          "Filter by status"
+                        )}
                       </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0 mr-4" align="start">
-                      <Command>
-                        <CommandList>
-                          <CommandInput placeholder="Search doctor..." />
-                          <ScrollArea className="h-[200px]">
-                            <CommandEmpty>No Doctor found.</CommandEmpty>
-                            {fetchingDoctors && (
-                              <CommandLoading>
-                                <div className="flex gap-2 items-center justify-center mt-4">
-                                  <Spinner />
-                                  <span className="text-muted-foreground">
-                                    Please wait...
-                                  </span>
-                                </div>
-                              </CommandLoading>
-                            )}
-                            <CommandGroup>
-                              {doctorsList.map((doctor: IFilterDoctor) => (
-                                <CommandItem
-                                  className="gap-2 cursor-pointer"
-                                  key={doctor.id}
-                                  value={doctor.name?.toString()}
-                                  onSelect={() => {
-                                    setSelectedDoctor(doctor);
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent>
+                      <DropdownMenuItem
+                        className="cursor-pointer"
+                        onClick={() => setAppointmentStatus("SCHEDULED")}
+                      >
+                        <Hourglass className="mr-2 h-4 w-4" />
+                        Scheduled
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        className="cursor-pointer"
+                        onClick={() => setAppointmentStatus("APPROVED")}
+                      >
+                        <CheckCircle className="mr-2 h-4 w-4" />
+                        Approved
+                      </DropdownMenuItem>
 
-                                    setShowDoctorList(false);
-                                  }}
-                                >
-                                  <p className="flex flex-col">
-                                    {doctor.name}
-                                    <span className="text-sm text-muted-foreground">
-                                      {doctor.speciality}
-                                    </span>
-                                  </p>
-                                  {selectedDoctor?.id === doctor.id && (
-                                    <CheckIcon
-                                      className={cn("ml-auto h-4 w-4")}
-                                    />
-                                  )}
-                                </CommandItem>
-                              ))}
-                            </CommandGroup>
-                          </ScrollArea>
-                        </CommandList>
-                      </Command>
+                      <DropdownMenuItem
+                        className="cursor-pointer"
+                        onClick={() => setAppointmentStatus("COMPLETED")}
+                      >
+                        <CheckCircle2 className="mr-2 h-4 w-4" /> Completed
+                      </DropdownMenuItem>
+
+                      <DropdownMenuItem
+                        onClick={() => setAppointmentStatus("CANCELLED")}
+                        className="cursor-pointer"
+                      >
+                        <X className="mr-2 h-4 w-4" />
+                        Cancelled
+                      </DropdownMenuItem>
                       <DropdownMenuSeparator />
-                      <Button
-                        variant="ghost"
-                        onClick={() => {
-                          setSelectedDoctor(undefined),
-                            setShowDoctorList(false);
-                        }}
-                        className="font-normal w-full  justify-start"
+                      <DropdownMenuItem
+                        className="cursor-pointer"
+                        onClick={() => setAppointmentStatus("")}
                       >
                         Clear Filter
-                      </Button>
-                    </PopoverContent>
-                  </Popover>
-                )}
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                  {user && user.role !== "DOCTOR" && (
+                    <Popover
+                      open={showDoctorList}
+                      onOpenChange={setShowDoctorList}
+                    >
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          className="justify-between text-muted-foreground font-normal"
+                          onClick={() => {
+                            setShowDoctorList(true);
+                            fetchDoctorList();
+                          }}
+                        >
+                          {selectedDoctor?.name
+                            ? selectedDoctor?.name
+                            : " Filter by doctor"}
+                          <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0 mr-4" align="start">
+                        <Command>
+                          <CommandList>
+                            <CommandInput placeholder="Search doctor..." />
+                            <ScrollArea className="h-[200px]">
+                              <CommandEmpty>No Doctor found.</CommandEmpty>
+                              {fetchingDoctors && (
+                                <CommandLoading>
+                                  <div className="flex gap-2 items-center justify-center mt-4">
+                                    <Spinner />
+                                    <span className="text-muted-foreground">
+                                      Please wait...
+                                    </span>
+                                  </div>
+                                </CommandLoading>
+                              )}
+                              <CommandGroup>
+                                {doctorsList.map((doctor: IFilterDoctor) => (
+                                  <CommandItem
+                                    className="gap-2 cursor-pointer"
+                                    key={doctor.id}
+                                    value={doctor.name?.toString()}
+                                    onSelect={() => {
+                                      setSelectedDoctor(doctor);
+
+                                      setShowDoctorList(false);
+                                    }}
+                                  >
+                                    <p className="flex flex-col">
+                                      {doctor.name}
+                                      <span className="text-sm text-muted-foreground">
+                                        {doctor.speciality}
+                                      </span>
+                                    </p>
+                                    {selectedDoctor?.id === doctor.id && (
+                                      <CheckIcon
+                                        className={cn("ml-auto h-4 w-4")}
+                                      />
+                                    )}
+                                  </CommandItem>
+                                ))}
+                              </CommandGroup>
+                            </ScrollArea>
+                          </CommandList>
+                        </Command>
+                        <DropdownMenuSeparator />
+                        <Button
+                          variant="ghost"
+                          onClick={() => {
+                            setSelectedDoctor(undefined),
+                              setShowDoctorList(false);
+                          }}
+                          className="font-normal w-full  justify-start"
+                        >
+                          Clear Filter
+                        </Button>
+                      </PopoverContent>
+                    </Popover>
+                  )}
+                </div>
+              </div>
+              <div>
+                <Button
+                  variant={"outline"}
+                  size={"sm"}
+                  onClick={() => navigate(APP_ROUTES.ADD_APPOINTMENT)}
+                >
+                  <Plus className="h-3.5 w-3.5" />
+                  <span>Add Appointment</span>
+                </Button>
               </div>
             </div>
             {isFetching && (

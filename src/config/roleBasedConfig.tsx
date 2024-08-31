@@ -4,6 +4,7 @@ import CreateAdmin from "@/pages/Admin/CreateAdmin";
 import UpdateAdmin from "@/pages/Admin/UpdateAdmin";
 import Ailments from "@/pages/Ailments/Ailments";
 import AppointmentFeedback from "@/pages/AppointmentFeedbacks";
+import AddAppointment from "@/pages/Appointments/AddAppointment/AddAppointment";
 import AppointmentDetails from "@/pages/Appointments/AppointmentDetails";
 import AppointmentsPage from "@/pages/Appointments/AppointmentsPage";
 import HomePage from "@/pages/DashboardPage";
@@ -83,7 +84,9 @@ export const routesAndNavItems = [
     path: APP_ROUTES.SLOTS,
     element: <Slot />,
     label: "Slots",
-    icon: <BetweenHorizontalStart className={`${navItemIconClass} text-teal-500`} />,
+    icon: (
+      <BetweenHorizontalStart className={`${navItemIconClass} text-teal-500`} />
+    ),
     roles: [ROLES.ADMIN],
   },
   {
@@ -136,5 +139,10 @@ export const routesAndNavItems = [
     path: APP_ROUTES.APPOINTMENT_DETAILS + "/:id",
     element: <AppointmentDetails />,
     roles: [ROLES.ADMIN, ROLES.DOCTOR],
+  },
+  {
+    path: APP_ROUTES.ADD_APPOINTMENT,
+    element: <AddAppointment />,
+    roles: [ROLES.ADMIN],
   },
 ];

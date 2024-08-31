@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 
-import { compareAsc, set, startOfToday } from "date-fns";
-import { IUpdateDoctor } from "./types";
 import * as cryptoJS from "crypto-js";
+import { compareAsc, set, startOfToday } from "date-fns";
+import { IUpdateDoctor, IWeekday } from "./types";
 
 // Map RHF's dirtyFields over the `data` received by `handleSubmit` and return the changed subset of that data.
 export function dirtyValues(
@@ -90,8 +90,6 @@ export const isEndTimeSmallerThanStart = (
   return compareAsc(endDate, startDate) < 0;
 };
 
-
-
 export const encryptPassword = async (password: string) => {
   try {
     return cryptoJS.AES.encrypt(
@@ -102,4 +100,14 @@ export const encryptPassword = async (password: string) => {
     console.log(error);
     throw error;
   }
+};
+
+export const getWeekdayId = (
+  weekdays: IWeekday[],
+  date: Date | undefined
+): string | undefined => {
+  if (!date) return undefined;
+
+  const dayIndex = (date.getDay() + 6) % 7; // Adjust index to start from Monday
+  return weekdays ? weekdays[dayIndex].id : undefined;
 };
