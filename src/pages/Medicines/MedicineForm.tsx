@@ -140,7 +140,7 @@ const MedicineForm = ({
                   name="medicationName"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Medication Name</FormLabel>
+                      <FormLabel>Medication Name<span className="text-red-500 ml-1">*</span></FormLabel>
                       <FormControl>
                         <Input
                           placeholder="Medication Name"
@@ -157,7 +157,7 @@ const MedicineForm = ({
                   name="code"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Code</FormLabel>
+                      <FormLabel>Code<span className="text-red-500 ml-1">*</span></FormLabel>
                       <FormControl>
                         <Input
                           placeholder="Code"
@@ -174,7 +174,7 @@ const MedicineForm = ({
                   name="description"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Description</FormLabel>
+                      <FormLabel>Description<span className="text-red-500 ml-1">*</span></FormLabel>
                       <FormControl>
                         <Input
                           placeholder="Description"
@@ -191,7 +191,7 @@ const MedicineForm = ({
                   name="manufacturer"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Manufacturer</FormLabel>
+                      <FormLabel>Manufacturer<span className="text-red-500 ml-1">*</span></FormLabel>
                       <FormControl>
                         <Input
                           placeholder="Manufacturer"
@@ -208,7 +208,7 @@ const MedicineForm = ({
                   name="expirationDate"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Expiration Date</FormLabel>
+                      <FormLabel>Expiration Date<span className="text-red-500 ml-1">*</span></FormLabel>
                       <FormControl>
                         {mode === "view" && !isEditMode ? (
                           <Input
@@ -239,7 +239,7 @@ const MedicineForm = ({
                   name="dosageForm"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Dosage Form</FormLabel>
+                      <FormLabel>Dosage Form<span className="text-red-500 ml-1">*</span></FormLabel>
                       <FormControl>
                         <Select
                           value={field.value}
@@ -269,7 +269,7 @@ const MedicineForm = ({
                   name="medicationDosage"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Medication Dosage</FormLabel>
+                      <FormLabel>Medication Dosage<span className="text-red-500 ml-1">*</span></FormLabel>
                       <FormControl>
                         <Input
                           placeholder="Medication Dosage"

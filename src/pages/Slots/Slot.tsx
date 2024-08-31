@@ -229,7 +229,7 @@ const Slot = () => {
           </DialogHeader>
           <div className="flex items-center gap-4">
             <div>
-              <Label>Start Time</Label>
+              <Label>Start Time<span className="text-red-500 ml-1">*</span></Label>
               <TimePicker
                 onTimeChange={(time) =>
                   setSelectedSlot((prev: Slots | null) => ({
@@ -241,7 +241,7 @@ const Slot = () => {
               />
             </div>
             <div>
-              <Label>End Time</Label>
+              <Label>End Time<span className="text-red-500 ml-1">*</span></Label>
               <TimePicker
                 onTimeChange={(time) =>
                   setSelectedSlot((prev: Slots | null) => ({

@@ -187,7 +187,9 @@ const CreateAdmin: React.FC = () => {
                   name="name"
                   render={({ field }) => (
                     <FormItem className="w-full md:w-1/2 lg:w-1/4 mb-4">
-                      <FormLabel>Name</FormLabel>
+                      <FormLabel>
+                        Name<span className="text-red-500 ml-1">*</span>
+                      </FormLabel>
                       <FormControl>
                         <Input {...field} />
                       </FormControl>
@@ -200,12 +202,18 @@ const CreateAdmin: React.FC = () => {
                   name="phoneNumber"
                   render={({ field }) => (
                     <FormItem className="w-full md:w-1/2 lg:w-1/4 mb-4">
-                      <FormLabel>Phone Number</FormLabel>
+                      <FormLabel>
+                        Phone Number<span className="text-red-500 ml-1">*</span>
+                      </FormLabel>
                       <FormControl>
                         <PhoneInput
                           defaultCountry="IN"
                           placeholder="Enter a phone number"
                           {...field}
+                          onChange={(val) => {
+                            field.onChange(val);
+                            form.trigger("phoneNumber");
+                          }}
                         />
                       </FormControl>
                       <FormMessage />
@@ -217,9 +225,18 @@ const CreateAdmin: React.FC = () => {
                   name="email"
                   render={({ field }) => (
                     <FormItem className="w-full md:w-1/2 lg:w-1/4 mb-4">
-                      <FormLabel>Email</FormLabel>
+                      <FormLabel>
+                        Email<span className="text-red-500 ml-1">*</span>
+                      </FormLabel>
                       <FormControl>
-                        <Input {...field} type="email" />
+                        <Input
+                          {...field}
+                          type="email"
+                          onChange={(e) => {
+                            field.onChange(e.target.value);
+                            form.trigger("email");
+                          }}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

@@ -106,7 +106,7 @@ const AilmentForm = ({
                   name="name"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Ailment Name</FormLabel>
+                      <FormLabel>Ailment Name<span className="text-red-500 ml-1">*</span></FormLabel>
                       <FormControl>
                         <Input
                           placeholder="Ailment Name"

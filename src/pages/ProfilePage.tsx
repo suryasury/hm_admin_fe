@@ -37,11 +37,10 @@ import { z } from "zod";
 
 const userSchema = z.object({
   name: z.string().min(1, "Name is required"),
-  dateOfBirth: z.string().refine((date) => !isNaN(Date.parse(date)), {
-    message: "Invalid date format",
-  }),
+  dateOfBirth: z.date({ message: "Invalid date" }).optional(),
   phoneNumber: z
     .string()
+    .max(13, { message: "Invalid phone number" })
     .refine(isValidPhoneNumber, { message: "Invalid phone number" })
     .or(z.literal("")),
   houseNumber: z.string().optional(),
@@ -71,6 +70,7 @@ const Profile: React.FC = () => {
     defaultValues: {
       ...user,
       phoneNumber: `${user.isd_code}${user.phoneNumber}`,
+      dateOfBirth: new Date(user.dateOfBirth),
     },
   });
 
@@ -91,11 +91,11 @@ const Profile: React.FC = () => {
         const detailsRes = await getUserDetails();
         const details = detailsRes.data.data;
         const transformedDetails = replaceNullWithEmptyString(details);
-        dispatch(setUser(transformedDetails as User));
         form.reset({
           ...transformedDetails,
           phoneNumber: `${transformedDetails?.isd_code}${transformedDetails?.phoneNumber}`,
         });
+        dispatch(setUser(transformedDetails as User));
       }
     } catch (error) {
       console.log(error);
@@ -204,7 +204,9 @@ const Profile: React.FC = () => {
                   name="name"
                   render={({ field }) => (
                     <FormItem className="w-full md:w-1/2 lg:w-1/4 mb-4">
-                      <FormLabel>Name</FormLabel>
+                      <FormLabel>
+                        Name <span className="text-red-500 ml-1">*</span>
+                      </FormLabel>
                       <FormControl>
                         <Input {...field} />
                       </FormControl>
@@ -216,11 +218,13 @@ const Profile: React.FC = () => {
                   <FormField
                     disabled
                     control={form.control}
-                    // @ts-expect-error-free
                     name="speciality"
                     render={({ field }) => (
                       <FormItem className="w-full md:w-1/2 lg:w-1/4 mb-4">
-                        <FormLabel>Speciality</FormLabel>
+                        <FormLabel>
+                          Speciality{" "}
+                          <span className="text-red-500 ml-1">*</span>
+                        </FormLabel>
                         <FormControl>
                           <Input {...field} />
                         </FormControl>
@@ -234,12 +238,20 @@ const Profile: React.FC = () => {
                   name="phoneNumber"
                   render={({ field }) => (
                     <FormItem className="w-full md:w-1/2 lg:w-1/4 mb-4">
-                      <FormLabel>Phone Number</FormLabel>
+                      <FormLabel>
+                        Phone Number{" "}
+                        <span className="text-red-500 ml-1">*</span>
+                      </FormLabel>
                       <FormControl>
                         <PhoneInput
                           defaultCountry="IN"
                           placeholder="Enter a phone number"
                           {...field}
+                          onChange={(value) => {
+                            field.onChange(value);
+                            form.trigger("phoneNumber");
+                          }}
+                          countryCallingCodeEditable={false}
                         />
                       </FormControl>
                       <FormMessage />
@@ -251,7 +263,9 @@ const Profile: React.FC = () => {
                   name="email"
                   render={({ field }) => (
                     <FormItem className="w-full md:w-1/2 lg:w-1/4 mb-4">
-                      <FormLabel>Email</FormLabel>
+                      <FormLabel>
+                        Email <span className="text-red-500 ml-1">*</span>
+                      </FormLabel>
                       <FormControl>
                         <Input {...field} type="email" />
                       </FormControl>

@@ -78,6 +78,7 @@ type CountrySelectProps = {
   value: RPNInput.Country;
   onChange: (value: RPNInput.Country) => void;
   options: CountrySelectOption[];
+  countryCallingCodeEditable?: boolean;
 };
 
 const CountrySelect = ({
@@ -85,6 +86,7 @@ const CountrySelect = ({
   value,
   onChange,
   options,
+  countryCallingCodeEditable = true,
 }: CountrySelectProps) => {
   const handleSelect = React.useCallback(
     (country: RPNInput.Country) => {
@@ -100,7 +102,7 @@ const CountrySelect = ({
           type="button"
           variant={"outline"}
           className={cn("flex gap-1 rounded-e-none rounded-s-lg px-3")}
-          disabled={disabled}
+          disabled={disabled || countryCallingCodeEditable}
         >
           <FlagComponent country={value} countryName={value} />
           <ChevronsUpDown
