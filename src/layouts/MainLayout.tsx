@@ -1,5 +1,6 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import logo from "@/assets/hms-logo.jpeg";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,13 +14,7 @@ import { routesAndNavItems } from "@/config/roleBasedConfig";
 import { APP_ROUTES } from "@/router/appRoutes";
 import { clearUser } from "@/state/userReducer";
 import { UserState } from "@/types";
-import {
-  ChevronLeft,
-  ChevronRight,
-  Menu,
-  Package2,
-  UserIcon,
-} from "lucide-react";
+import { ChevronLeft, ChevronRight, Menu, UserIcon } from "lucide-react";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -68,7 +63,7 @@ const DashboardLayout = () => {
     [APP_ROUTES.CREATE_DOCTOR]: "Create Doctor",
     [APP_ROUTES.PROFILE]: "Profile",
     [APP_ROUTES.APPOINTMENT_DETAILS + `/${id}`]: "Appointment Details",
-    [APP_ROUTES.ADD_APPOINTMENT] : "Add Appointment",
+    [APP_ROUTES.ADD_APPOINTMENT]: "Add Appointment",
   } as const;
 
   const navItems = generateNavItems(user?.role ?? "admin");
@@ -90,10 +85,13 @@ const DashboardLayout = () => {
         }`}
       >
         <div className="flex h-full max-h-screen flex-col gap-2">
-          <div className="flex h-14 items-center border-b px-4 lg:h-[60px] lg:px-4">
+          <div className="flex items-center justify-center border-b px-4 lg:h-[60px] lg:px-4">
             <Link to="/" className="flex items-center gap-2 font-semibold">
-              <Package2 className="h-6 w-6" />
-              {!collapseSidebar && <span className="">HMS</span>}
+              {collapseSidebar ? (
+                <span className="">HMS</span>
+              ) : (
+                <img src={logo} className="w-[100px] h-[50px] mb-3" />
+              )}
             </Link>
           </div>
           <div className="flex-1 relative">

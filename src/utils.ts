@@ -7,7 +7,7 @@ import { IUpdateDoctor, IWeekday } from "./types";
 // Map RHF's dirtyFields over the `data` received by `handleSubmit` and return the changed subset of that data.
 export function dirtyValues(
   dirtyFields: object | boolean,
-  allValues: object
+  allValues: object,
 ): object {
   // If *any* item in an array was modified, the entire array must be submitted, because there's no way to indicate
   // "placeholders" for unchanged elements. `dirtyFields` is `true` for leaves.
@@ -19,7 +19,7 @@ export function dirtyValues(
       key,
       // @ts-ignore
       dirtyValues(dirtyFields[key], allValues[key]),
-    ])
+    ]),
   );
 }
 
@@ -32,7 +32,7 @@ export const statusClasses: { [key: string]: string } = {
 };
 
 export const replaceNullWithEmptyString = (
-  obj: IUpdateDoctor["doctorDetails"]
+  obj: IUpdateDoctor["doctorDetails"],
 ): IUpdateDoctor["doctorDetails"] => {
   return Object.fromEntries(
     Object.entries(obj as { [s: string]: string }).map(([key, value]) => {
@@ -43,7 +43,7 @@ export const replaceNullWithEmptyString = (
       } else {
         return [key, value];
       }
-    })
+    }),
   );
 };
 
@@ -55,7 +55,7 @@ export const replaceNullWithEmptyString = (
  */
 export const isEndTimeSmallerThanStart = (
   startTime: string,
-  endTime: string
+  endTime: string,
 ): boolean => {
   if (!startTime || !endTime) {
     return false;
@@ -94,7 +94,7 @@ export const encryptPassword = async (password: string) => {
   try {
     return cryptoJS.AES.encrypt(
       password,
-      import.meta.env.REACT_APP_CRYPTO_SECRET_KEY as string
+      import.meta.env.REACT_APP_CRYPTO_SECRET_KEY as string,
     ).toString();
   } catch (error) {
     console.log(error);
@@ -104,7 +104,7 @@ export const encryptPassword = async (password: string) => {
 
 export const getWeekdayId = (
   weekdays: IWeekday[],
-  date: Date | undefined
+  date: Date | undefined,
 ): string | undefined => {
   if (!date) return undefined;
 

@@ -4,8 +4,6 @@ import { toast } from "sonner";
 const useErrorHandler = () => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleError = (error: any, customMessage?: string) => {
-    console.error(customMessage, error);
-
     if (error.response && error.response.status !== 401) {
       const message =
         error.response.status === 500
@@ -14,7 +12,7 @@ const useErrorHandler = () => {
       toast.error(customMessage, {
         description: message || "Something went wrong. Please try again later.",
       });
-    } else{
+    } else {
       toast.error("Something went wrong. Please try again later.");
     }
   };
