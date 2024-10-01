@@ -122,6 +122,29 @@ interface DoctorSlots {
     hospitalId: string;
   };
 }
+export interface PatientPrescriponList {
+  id: string;
+  timeOfDay: "MORNING" | "AFTERNOON" | "EVENING" | "NIGHT";
+  isPrescriptionTaken: boolean;
+  prescriptionDays: {
+    prescriptionDate: string;
+    id: string;
+    patientPrescription: {
+      id: string;
+      medicationStock: {
+        id: string;
+        medicationName: string;
+        code: string;
+        manufacturer: string;
+        dosageForm?: string;
+        medicationDosage: string;
+      };
+      durationInDays: number;
+      foodRelation: string;
+      prescriptionRemarks?: string;
+    };
+  };
+}
 export interface Appointment {
   id: string;
   appointmentDate: string;
@@ -148,6 +171,16 @@ export interface Appointment {
   patientAppointmentDocs: Array<
     Record<string, string | Record<string, string>>
   >;
+  postTreatmentDocuments: {
+    id: string;
+    fileName: string;
+    fileUrl: string;
+    signedUrl: string;
+    bucketPath: string;
+    documentName: string;
+    fileExtension: string;
+    documentTypes: IMedicalReportType;
+  }[];
   remarks: "";
   doctorRemarks: "";
   isFeedbackProvided: boolean;

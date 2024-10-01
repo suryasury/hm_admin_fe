@@ -23,7 +23,7 @@ export const createMedicine = async (payload: ICreateMedicationForm) => {
 
 export const updateMedicine = async (
   payload: ICreateMedicationForm,
-  id: string
+  id: string,
 ) => {
   return api.patch(API_END_POINTS.MEDICINE_UPDATE + `/${id}`, payload);
 };
@@ -61,13 +61,34 @@ export const deleteAilment = async (id: string) => {
 };
 
 export const getAppointmentList = async (
-  queryParams: Record<string, string>
+  queryParams: Record<string, string>,
 ) => {
   return api.get(API_END_POINTS.APPOINTMENT_LIST, { params: queryParams });
 };
 
+export const getPatientPrescriptionStatusList = async (
+  appointmentId: string,
+  patientId: string,
+  queryParams: Record<string, string>,
+) => {
+  return api.get(
+    API_END_POINTS.PATIENT_PRESCRIPTION_LIST + `/${appointmentId}/${patientId}`,
+    {
+      params: queryParams,
+    },
+  );
+};
+
+export const downloadAppointmentListCSV = async (
+  queryParams: Record<string, string>,
+) => {
+  return api.get(API_END_POINTS.APPOINTMENT_LIST_DOWNLOAD, {
+    params: queryParams,
+  });
+};
+
 export const getDoctorMinifiedList = async (
-  queryParams?: Record<string, string>
+  queryParams?: Record<string, string>,
 ) => {
   return api.get(API_END_POINTS.DOCTOR_MINIFIED_LISt, { params: queryParams });
 };
@@ -80,9 +101,19 @@ export const updateAppointment = async (payload: IAppointmentUpdate) => {
   return api.post(API_END_POINTS.APPOINTMENT_UPDATE, payload);
 };
 
+export const deletePostTreatmentDocument = async (
+  documentId: string,
+  appointmentId: string,
+) => {
+  return api.delete(
+    API_END_POINTS.DELETE_POST_TREATMENT_REPORT +
+      `/${appointmentId}/${documentId}`,
+  );
+};
+
 export const updateVitals = async (
   payload: Record<string, string>,
-  id: string
+  id: string,
 ) => {
   return api.patch(API_END_POINTS.UPDATE_VItALS + `/${id}`, payload);
 };
@@ -148,6 +179,19 @@ export const getDoctorSlots = async (queryParams: Record<string, string>) => {
 
 export const uploadReports = async (data: FormData, patientId: string) => {
   return api.post(API_END_POINTS.UPLOAD_REPORT + `/${patientId}`, data);
+};
+
+export const uploadPostTreatmentReport = async (
+  data: FormData,
+  patientId: string,
+  documentTypeId: string,
+  appointmentId: string,
+) => {
+  return api.post(
+    API_END_POINTS.UPLOAD_POST_TREATMENT_REPORT +
+      `/${patientId}/${documentTypeId}/${appointmentId}`,
+    data,
+  );
 };
 
 export const getTimeSlots = (weekDayId: string, doctorId: string) => {

@@ -56,6 +56,7 @@ import StarRating from "@/components/ui/star";
 import { Textarea } from "@/components/ui/textarea";
 import useErrorHandler from "@/hooks/useError";
 import {
+  deletePostTreatmentDocument,
   getAppointmentDetails,
   getAppointmentList,
   getMedicineList,
@@ -108,6 +109,8 @@ import { useReactToPrint } from "react-to-print";
 import { toast } from "sonner";
 import NoDataFound from "../NoDataFound";
 import PrintPrescription from "./PrintPrescription";
+import PatientAppointmentPrescription from "./PatientAppointmentPrescription";
+// import UploadReport from "./UploadPostTreatmentReports";
 
 interface TimeOfDayOption {
   value: "MORNING" | "AFTERNOON" | "EVENING" | "NIGHT";
@@ -219,6 +222,8 @@ const AppointmentDetails = () => {
   const startIndex = (currentPage - 1) * rowsPerPage + 1;
   const endIndex = appointmentsList?.length + startIndex - 1;
   const [isFetching, setIsFetching] = useState<boolean>(false);
+  const [documentToDelete, setDocumentToDelete] = useState("");
+  const [deleteDocumentAlert, setDeleteDocumentAlert] = useState(false);
   const [selectedAppointmentId, setSelectedAppointmentId] = useState<string>();
   const [isPastDetailsFetching, setIsPastDetailsFetching] =
     useState<boolean>(false);
@@ -423,6 +428,60 @@ const AppointmentDetails = () => {
       </AlertDialogContent>
     );
   };
+
+  const DeleteDocumentDialog = () => {
+    const [isCancelling, setIsCancelling] = useState<boolean>(false);
+
+    const handleCancel = async () => {
+      try {
+        setIsCancelling(true);
+
+        await deletePostTreatmentDocument(
+          documentToDelete,
+          appointmentDetails!.id,
+        );
+        toast.success("Document deleted successfully");
+        fetchAppointmentDetails();
+      } catch (error) {
+        handleError(error, "Error deleting document");
+      } finally {
+        setIsCancelling(false);
+        setDeleteDocumentAlert(false);
+        setDocumentToDelete("");
+      }
+    };
+    return (
+      <AlertDialogContent className="max-w-[360px] md:max-w-[500px] rounded-lg">
+        <AlertDialogHeader>
+          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+          <AlertDialogDescription>
+            This action cannot be undone. This will permanently delete the
+            document.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+
+        <AlertDialogFooter>
+          <AlertDialogCancel
+            onClick={() => {
+              setDocumentToDelete("");
+              setDeleteDocumentAlert(false);
+            }}
+          >
+            Cancel
+          </AlertDialogCancel>
+          <AlertDialogAction
+            onClick={() => {
+              handleCancel();
+            }}
+          >
+            Continue
+            {isCancelling && <Spinner type="light" />}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    );
+  };
+
   const CompleteAppointmentContent = () => {
     const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
@@ -478,6 +537,10 @@ const AppointmentDetails = () => {
       "dd-MMM-yyyy",
     )}`,
   });
+
+  // const handleUpdateMedicalReport = () => {
+  //   fetchAppointmentDetails();
+  // };
 
   return (
     <>
@@ -599,31 +662,92 @@ const AppointmentDetails = () => {
                   )}
                 </div>
                 <div className="border-t-2 border-solid border-primary/10 my-4" />
-                <div className="flex flex-col justify-between w-full gap-2 mb-2 mt-4">
-                  <CardTitle>Patient Reports</CardTitle>
-                  <div className="flex items-center gap-2 mt-2 flex-wrap">
+                <div className="flex gap-x-4 flex-wrap md:flex-nowrap mt-5">
+                  <div className="flex flex-col justify-between w-full gap-2 mt-2">
+                    <CardTitle>Patient Reports</CardTitle>
                     {appointmentDetails?.patientAppointmentDocs.length ===
                       0 && <p className="text-sm">No Records Available</p>}
-                    {appointmentDetails?.patientAppointmentDocs.map((doc) => (
-                      <div key={doc.id as string} className="">
-                        <Badge
-                          variant={"secondary"}
-                          onClick={() =>
-                            window.open(
-                              doc.signedUrl as string,
-                              "_blank",
-                              "noopener,noreferrer",
-                            )
-                          }
-                          className="cursor-pointer w-fit"
-                        >
-                          {`${
-                            (doc.documentTypes as Record<string, string>).name
-                          }.${doc.fileExtension}`}
-                        </Badge>
-                      </div>
-                    ))}
+                    <div className="flex items-center flex-wrap gap-2">
+                      {appointmentDetails?.patientAppointmentDocs.map((doc) => (
+                        <div key={doc.id as string} className="">
+                          <Badge
+                            variant={"secondary"}
+                            onClick={() =>
+                              window.open(
+                                doc.signedUrl as string,
+                                "_blank",
+                                "noopener,noreferrer",
+                              )
+                            }
+                            className="cursor-pointer w-fit"
+                          >
+                            {`${
+                              (doc.documentTypes as Record<string, string>).name
+                            }.${doc.fileExtension}`}
+                          </Badge>
+                        </div>
+                      ))}
+                    </div>
                   </div>
+                  {appointmentDetails.appointmentStatus === "COMPLETED" && (
+                    <>
+                      <div className="border-l-2 border-solid" />
+                      <div className="flex flex-col justify-between w-full gap-2">
+                        <div className="flex items-center justify-between gap-0">
+                          <CardTitle>Post Treatment Reports</CardTitle>
+                          {/* {appointmentDetails && (
+                            <UploadReport
+                              updateMedicalReport={handleUpdateMedicalReport}
+                              patientId={appointmentDetails.patient.id}
+                              appointmentId={appointmentDetails.id}
+                            />
+                          )} */}
+                        </div>
+                        <div className="flex items-center gap-2 flex-wrap">
+                          {appointmentDetails.postTreatmentDocuments.length ===
+                            0 && (
+                            <p className="text-sm">No Records Available</p>
+                          )}
+                          <div className="flex items-center gap-2">
+                            {appointmentDetails &&
+                              appointmentDetails.postTreatmentDocuments &&
+                              appointmentDetails.postTreatmentDocuments
+                                .length !== 0 &&
+                              appointmentDetails.postTreatmentDocuments.map(
+                                (file) => {
+                                  return (
+                                    <Badge
+                                      variant={"secondary"}
+                                      className="cursor-pointer"
+                                      onClick={() =>
+                                        window.open(
+                                          file.signedUrl as string,
+                                          "_blank",
+                                          "noopener,noreferrer",
+                                        )
+                                      }
+                                    >
+                                      <div className="flex w-full gap-2 items-center capitalize">
+                                        <p>{`${file.documentTypes.name}.${file.fileExtension}`}</p>
+                                        {/* <X
+                                          className="w-3 h-3 hover:scale-110"
+                                          xlinkTitle="Delete Document"
+                                          onClick={(e) => {
+                                            setDocumentToDelete(file.id);
+                                            setDeleteDocumentAlert(true);
+                                            e.stopPropagation();
+                                          }}
+                                        /> */}
+                                      </div>
+                                    </Badge>
+                                  );
+                                },
+                              )}
+                          </div>
+                        </div>
+                      </div>
+                    </>
+                  )}
                 </div>
                 {appointmentDetails?.isFeedbackProvided && (
                   <>
@@ -1241,6 +1365,13 @@ const AppointmentDetails = () => {
                 )}
               </CardContent>
             </Card>
+            {/* Patient prescription status */}
+            {appointmentDetails.appointmentStatus === "COMPLETED" && (
+              <PatientAppointmentPrescription
+                appointmentId={appointmentDetails.id}
+                patientId={appointmentDetails.patient.id}
+              />
+            )}
             <>
               <div className="flex gap-2 h-fit w-full justify-end">
                 {appointmentDetails?.appointmentStatus === "SCHEDULED" &&
@@ -1577,44 +1708,88 @@ const AppointmentDetails = () => {
                     x-chunk="appointment-details-patient-details-chunk"
                     className="h-fit"
                   >
-                    <CardHeader className="relative">
-                      <CardTitle>Patient Reports</CardTitle>
-                    </CardHeader>
-                    <CardContent className="min-w-[300px]">
-                      <div className="flex flex-col justify-between w-full gap-2 mb-2">
+                    <CardContent className="mt-5">
+                      <div className="flex items-center justify-evenly">
                         {/* <CardTitle>Patient Reports</CardTitle> */}
-                        <div className="flex items-center gap-2 mt-2 flex-wrap">
+                        <div className="flex flex-col justify-between w-full gap-2">
+                          <div className="flex items-center justify-between gap-0">
+                            <CardTitle>Patient Reports</CardTitle>
+                          </div>
                           {pastAppointmentDetails?.patientAppointmentDocs
                             .length === 0 && (
                             <p className="text-sm">No Records Available</p>
                           )}
-                          {pastAppointmentDetails?.patientAppointmentDocs.map(
-                            (doc) => (
-                              <div key={doc.id as string} className="">
-                                <Badge
-                                  variant={"secondary"}
-                                  onClick={() =>
-                                    window.open(
-                                      doc.signedUrl as string,
-                                      "_blank",
-                                      "noopener,noreferrer",
-                                    )
-                                  }
-                                  className="cursor-pointer w-fit"
-                                >
-                                  {`${
-                                    (
-                                      doc.documentTypes as Record<
-                                        string,
-                                        string
-                                      >
-                                    ).name
-                                  }.${doc.fileExtension}`}
-                                </Badge>
-                              </div>
-                            ),
-                          )}
+                          <div className="flex items-center gap-2 flex-wrap">
+                            {pastAppointmentDetails?.patientAppointmentDocs.map(
+                              (doc) => (
+                                <div key={doc.id as string} className="">
+                                  <Badge
+                                    variant={"secondary"}
+                                    onClick={() =>
+                                      window.open(
+                                        doc.signedUrl as string,
+                                        "_blank",
+                                        "noopener,noreferrer",
+                                      )
+                                    }
+                                    className="cursor-pointer w-fit"
+                                  >
+                                    {`${
+                                      (
+                                        doc.documentTypes as Record<
+                                          string,
+                                          string
+                                        >
+                                      ).name
+                                    }.${doc.fileExtension}`}
+                                  </Badge>
+                                </div>
+                              ),
+                            )}
+                          </div>
                         </div>
+                        {pastAppointmentDetails.appointmentStatus ===
+                          "COMPLETED" && (
+                          <>
+                            <div className="border-l-2 border-solid"></div>
+                            <div className="flex flex-col justify-between w-full gap-2">
+                              <div className="flex items-center justify-between gap-0">
+                                <CardTitle>Post Treatment Reports</CardTitle>
+                              </div>
+                              <div className="flex items-center flex-wrap">
+                                {pastAppointmentDetails.postTreatmentDocuments
+                                  .length === 0 && (
+                                  <p className="text-sm">
+                                    No Records Available
+                                  </p>
+                                )}
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  {pastAppointmentDetails.postTreatmentDocuments
+                                    .length !== 0 &&
+                                    pastAppointmentDetails.postTreatmentDocuments.map(
+                                      (file) => {
+                                        return (
+                                          <Badge
+                                            variant={"secondary"}
+                                            className="cursor-pointer"
+                                            onClick={() =>
+                                              window.open(
+                                                file.signedUrl as string,
+                                                "_blank",
+                                                "noopener,noreferrer",
+                                              )
+                                            }
+                                          >
+                                            {`${file.documentTypes.name}.${file.fileExtension}`}
+                                          </Badge>
+                                        );
+                                      },
+                                    )}
+                                </div>
+                              </div>
+                            </div>
+                          </>
+                        )}
                       </div>
                       {pastAppointmentDetails?.isFeedbackProvided && (
                         <>
@@ -1880,6 +2055,14 @@ const AppointmentDetails = () => {
                       )}
                     </CardContent>
                   </Card>
+                  {pastAppointmentDetails &&
+                    pastAppointmentDetails.appointmentStatus ===
+                      "COMPLETED" && (
+                      <PatientAppointmentPrescription
+                        appointmentId={pastAppointmentDetails.id}
+                        patientId={pastAppointmentDetails.patient.id}
+                      />
+                    )}
                 </>
               ) : (
                 <CommandLoading>
@@ -1912,6 +2095,9 @@ const AppointmentDetails = () => {
         ) : (
           <CompleteAppointmentContent />
         )}
+      </AlertDialog>
+      <AlertDialog open={deleteDocumentAlert}>
+        <DeleteDocumentDialog />
       </AlertDialog>
     </>
   );

@@ -31,14 +31,19 @@ export const API_END_POINTS = {
   AILMENT_DELETE: "admin/hospital/ailment/delete",
 
   APPOINTMENT_LIST: "admin/hospital/appointment/list",
+  APPOINTMENT_LIST_DOWNLOAD: "admin/hospital/appointment/list/download",
   APPOINTMENT_DETAILS: "admin/hospital/appointment/details",
   APPOINTMENT_UPDATE: "admin/hospital/appointment/update/status",
   UPDATE_VItALS: "admin/hospital/appointment/update/vitals",
   DOCTOR_MINIFIED_LISt: "admin/hospital/doctor/minified/list",
   REPORT_TYPE_LIST: "admin/hospital/documenttype/list",
   UPLOAD_REPORT: "common/customer/upload/records",
-  TIME_SLOTS:"admin/hospital/slots",
-  CREATE_APPOINTMENT:"admin/hospital/appointment/create",
+  UPLOAD_POST_TREATMENT_REPORT: "common/admin/upload/records/posttreatment",
+  DELETE_POST_TREATMENT_REPORT:
+    "admin/hospital/appointment/record/posttreatment",
+  TIME_SLOTS: "admin/hospital/slots",
+  CREATE_APPOINTMENT: "admin/hospital/appointment/create",
+  PATIENT_PRESCRIPTION_LIST: "admin/hospital/appointment/prescription/list",
 
   PATIENTS_LIST: "admin/hospital/patients/list",
   PATIENT_DETAILS: "admin/patient/details",

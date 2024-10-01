@@ -1,6 +1,7 @@
 import { Appointment } from "@/types";
 import { format } from "date-fns";
 import React from "react";
+import logo from "@/assets/hms-logo.jpeg";
 
 const PrintPrescription = React.forwardRef(
   (
@@ -20,19 +21,25 @@ const PrintPrescription = React.forwardRef(
     };
     return (
       <div ref={ref} className="p-10 bg-white text-black font-sans">
-        <div className="text-center border-b border-gray-600 pb-5">
-          <h1 className="text-xl font-bold uppercase">
-            {appointmentDetails.hospital.name}
-          </h1>
-          <p>{`${getCombinedAddress(appointmentDetails?.hospital)} - ${
-            appointmentDetails?.hospital?.pincode
-          }`}</p>
-          <p>
-            PH:{" "}
-            {`${appointmentDetails?.hospital?.isd_code} ${appointmentDetails?.hospital?.phoneNumber}`}
-          </p>
-          <h2 className="font-bold mt-1">Out Patient Prescription Form</h2>
+        <div className="flex text-center">
+          <div className="flex-0">
+            <img src={logo} className="w-[180px] h-[80px] relative" />
+          </div>
+          <div className="align-middle w-full pb-5 flex-3 ml-[-150px]">
+            <h1 className="text-xl font-bold uppercase">
+              {appointmentDetails.hospital.name}
+            </h1>
+            <p className="pl-[160px] pr-[160px]">{`${getCombinedAddress(
+              appointmentDetails?.hospital,
+            )} - ${appointmentDetails?.hospital?.pincode}`}</p>
+            <p>
+              PH:{" "}
+              {`${appointmentDetails?.hospital?.isd_code} ${appointmentDetails?.hospital?.phoneNumber}`}
+            </p>
+            <h2 className="font-bold mt-1">Out Patient Prescription Form</h2>
+          </div>
         </div>
+        <div className="border-b border-gray-600"></div>
         <div className="mt-3">
           <div className="flex justify-between">
             <div className="space-y-1">

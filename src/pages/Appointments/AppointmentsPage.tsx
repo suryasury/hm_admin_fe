@@ -18,7 +18,7 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
-import DatePicker from "@/components/ui/date-picker";
+import { DateRangePicker } from "@/components/ui/dateRangePicker";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -49,6 +49,7 @@ import {
 } from "@/components/ui/table";
 import useErrorHandler from "@/hooks/useError";
 import {
+  downloadAppointmentListCSV,
   getAppointmentList,
   getDoctorMinifiedList,
   updateAppointment,
@@ -78,6 +79,7 @@ import {
   Plus,
   Search,
   X,
+  FileDown,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
@@ -115,7 +117,6 @@ const statusToText = {
   },
 };
 const AppointmentsPage = () => {
-  const [date, setDate] = useState<Date | undefined>(new Date());
   const [noOfPages, setNoOfPages] = useState(15);
   const [totalRecords, setTotalRecords] = useState(0);
   const [appointmentsList, setAppointmentList] = useState<Appointment[]>([]);
@@ -132,10 +133,17 @@ const AppointmentsPage = () => {
   const [selectedDoctor, setSelectedDoctor] = useState<IFilterDoctor>();
   const [showDoctorList, setShowDoctorList] = useState(false);
   const [fetchingDoctors, setFetchingDoctors] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
   const [deleteId, setDeleteId] = useState<string | undefined>(undefined);
   const user = useSelector((state: { user: UserState }) => state.user.user);
   const startIndex = (currentPage - 1) * rowsPerPage + 1;
   const endIndex = appointmentsList?.length + startIndex - 1;
+  const [startDate, setStartDate] = useState(
+    new Date().toISOString().substring(0, 10),
+  );
+  const [endDate, setEndDate] = useState(
+    new Date().toISOString().substring(0, 10),
+  );
 
   const handleError = useErrorHandler();
 
@@ -148,8 +156,11 @@ const AppointmentsPage = () => {
         appointmentStatus: appointmentStatus,
         search,
       };
-      if (date) {
-        queryParams["date"] = format(date, "yyyy-MM-dd");
+      if (startDate) {
+        queryParams["startDate"] = startDate;
+      }
+      if (endDate) {
+        queryParams["endDate"] = endDate;
       }
       if (selectedDoctor) {
         queryParams["doctorId"] = selectedDoctor.id;
@@ -167,6 +178,45 @@ const AppointmentsPage = () => {
       handleError(error, "Failed to fetch appointment list");
     } finally {
       setIsFetching(false);
+    }
+  };
+
+  const handleDownload = async () => {
+    try {
+      setIsDownloading(true);
+      const queryParams: Record<string, string> = {
+        appointmentStatus: appointmentStatus,
+        search,
+      };
+      if (startDate) {
+        queryParams["startDate"] = startDate;
+      }
+      if (endDate) {
+        queryParams["endDate"] = endDate;
+      }
+      if (selectedDoctor) {
+        queryParams["doctorId"] = selectedDoctor.id;
+      }
+      if (user && user.role === "DOCTOR") {
+        queryParams["doctorId"] = user.id;
+      }
+      const result = await downloadAppointmentListCSV(queryParams);
+      const contentDisposition = result.headers["content-disposition"];
+      const filename = contentDisposition.split(";")[1].split("=")[1];
+      const decodedFilename = decodeURIComponent(filename);
+      const blob = new Blob([result.data], { type: "text/csv" });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", decodedFilename);
+      document.body.appendChild(link);
+      link.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(link);
+    } catch (error) {
+      handleError(error, "Failed to fetch appointment list");
+    } finally {
+      setIsDownloading(false);
     }
   };
 
@@ -244,8 +294,10 @@ const AppointmentsPage = () => {
     rowsPerPage,
     appointmentStatus,
     search,
-    date,
+    // date,
     selectedDoctor,
+    startDate,
+    endDate,
   ]);
 
   return (
@@ -264,10 +316,20 @@ const AppointmentsPage = () => {
                     className="w-full rounded-lg bg-background pl-8 md:w-[200px] lg:w-[320px]"
                   />
                 </div>
-                <DatePicker
-                  date={date}
-                  setDate={setDate}
-                  placeholder="Filter by date"
+                <DateRangePicker
+                  showCompare={false}
+                  locale="en-IN"
+                  align="start"
+                  initialDateFrom={startDate}
+                  initialCompareTo={endDate}
+                  onUpdate={(values) => {
+                    setStartDate(
+                      values.range.from.toISOString().substring(0, 10),
+                    );
+                    setEndDate(
+                      values!.range!.to!.toISOString().substring(0, 10),
+                    );
+                  }}
                 />
                 <div className="flex justify-between  gap-1 w-full">
                   <DropdownMenu>
@@ -407,14 +469,27 @@ const AppointmentsPage = () => {
                   )}
                 </div>
               </div>
-              <div>
+              <div className="flex items-center gap-2">
                 <Button
                   variant={"outline"}
                   size={"sm"}
                   onClick={() => navigate(APP_ROUTES.ADD_APPOINTMENT)}
+                  title="Book Appointment"
                 >
                   <Plus className="h-3.5 w-3.5" />
-                  <span>Add Appointment</span>
+                  <span>Book Appointment</span>
+                </Button>
+                <Button
+                  variant={"outline"}
+                  size={"sm"}
+                  onClick={() => handleDownload()}
+                  title="Download"
+                >
+                  {isDownloading ? (
+                    <Spinner />
+                  ) : (
+                    <FileDown className="w-6 h-6" />
+                  )}
                 </Button>
               </div>
             </div>
@@ -454,7 +529,7 @@ const AppointmentsPage = () => {
                     key={appointment.id}
                     onClick={() =>
                       navigate(
-                        `${APP_ROUTES.APPOINTMENT_DETAILS}/${appointment.id}`
+                        `${APP_ROUTES.APPOINTMENT_DETAILS}/${appointment.id}`,
                       )
                     }
                     className="cursor-pointer"
@@ -506,7 +581,7 @@ const AppointmentsPage = () => {
                           <DropdownMenuItem
                             onClick={() =>
                               navigate(
-                                `${APP_ROUTES.APPOINTMENT_DETAILS}/${appointment.id}`
+                                `${APP_ROUTES.APPOINTMENT_DETAILS}/${appointment.id}`,
                               )
                             }
                           >
@@ -600,7 +675,7 @@ const AppointmentsPage = () => {
                   size="icon"
                   onClick={() =>
                     setCurrentPage((prev) =>
-                      prev === noOfPages ? noOfPages : prev + 1
+                      prev === noOfPages ? noOfPages : prev + 1,
                     )
                   }
                 >
